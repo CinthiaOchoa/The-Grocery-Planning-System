@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Planner - Login</title>
+  <style>
+    :root {
+      --deep-teal: #044F5F;
+      --teal: #165E6E;
+      --dark-red: #89322A;
+      --red: #AD5247;
+      --coral: #DF7B5D;
+      --sand: #EDC385;
+      --cream: #F7F3EE;
+      --white: #FFFFFF;
+      --text-dark: #1E2A2F;
+      --shadow: 0 16px 40px rgba(4, 79, 95, 0.16);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--cream) 0%, #f1e7db 100%);
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .page-shell {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      background: var(--white);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      min-height: 680px;
+    }
+
+    .brand-panel {
+      background: linear-gradient(160deg, var(--deep-teal) 0%, var(--teal) 55%, #2d7280 100%);
+      color: var(--white);
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-panel::before,
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.14;
+      background: var(--sand);
+    }
+
+    .brand-panel::before {
+      width: 240px;
+      height: 240px;
+      right: -70px;
+      top: -50px;
+    }
+
+    .brand-panel::after {
+      width: 280px;
+      height: 280px;
+      left: -110px;
+      bottom: -120px;
+    }
+
+    .brand-content,
+    .brand-footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-badge {
+      width: 74px;
+      height: 74px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.9rem;
+      margin-bottom: 28px;
+    }
+
+    .brand-panel h1 {
+      font-size: 2.7rem;
+      line-height: 1.1;
+      margin-bottom: 18px;
+      max-width: 420px;
+    }
+
+    .brand-panel p {
+      max-width: 430px;
+      line-height: 1.7;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 34px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.98rem;
+    }
+
+    .feature-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--sand);
+      flex-shrink: 0;
+    }
+
+    .palette-card {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 18px;
+      backdrop-filter: blur(6px);
+      max-width: 360px;
+    }
+
+    .palette-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .palette-swatches {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .swatch {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .swatch:nth-child(1) { background: #044F5F; }
+    .swatch:nth-child(2) { background: #165E6E; }
+    .swatch:nth-child(3) { background: #89322A; }
+    .swatch:nth-child(4) { background: #AD5247; }
+    .swatch:nth-child(5) { background: #DF7B5D; }
+    .swatch:nth-child(6) { background: #EDC385; }
+
+    .form-panel {
+      padding: 56px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-card .eyebrow {
+      display: inline-block;
+      background: rgba(4, 79, 95, 0.08);
+      color: var(--deep-teal);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .login-card h2 {
+      font-size: 2.1rem;
+      margin-bottom: 10px;
+      color: var(--deep-teal);
+    }
+
+    .subtitle {
+      color: #5a666b;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--dark-red);
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 15px 16px;
+      border: 2px solid #e6d9ca;
+      border-radius: 14px;
+      font-size: 1rem;
+      background: var(--white);
+      transition: 0.2s ease;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(22, 94, 110, 0.12);
+    }
+
+    .options-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: 6px 0 24px;
+      font-size: 0.92rem;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #5a666b;
+    }
+
+    .remember-me input {
+      accent-color: var(--red);
+    }
+
+    .link-btn {
+      color: var(--red);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .link-btn:hover {
+      color: var(--dark-red);
+    }
+
+    .login-btn {
+      width: 100%;
+      border: none;
+      background: linear-gradient(135deg, var(--dark-red) 0%, var(--red) 60%, var(--coral) 100%);
+      color: var(--white);
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 12px 24px rgba(137, 50, 42, 0.2);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(137, 50, 42, 0.28);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 26px 0;
+      color: #8c8c8c;
+      font-size: 0.92rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      height: 1px;
+      background: #e5d7c8;
+      flex: 1;
+    }
+
+    .secondary-btn {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid var(--sand);
+      background: #fff8ef;
+      color: var(--deep-teal);
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: #fff1dd;
+    }
+
+    .note-box {
+      margin-top: 22px;
+      background: #fff8f0;
+      border-left: 5px solid var(--sand);
+      padding: 14px 16px;
+      border-radius: 12px;
+      color: #6b5f53;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 930px) {
+      .page-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-panel,
+      .form-panel {
+        padding: 40px 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 18px;
+      }
+
+      .page-shell {
+        border-radius: 24px;
+      }
+
+      .brand-panel h1 {
+        font-size: 2.1rem;
+      }
+
+      .login-card h2 {
+        font-size: 1.7rem;
+      }
+
+      .options-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .palette-swatches {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="brand-panel">
+      <div class="brand-content">
+        <div class="logo-badge">🍽️</div>
+        <h1>Meal Planning That Fits Your Budget</h1>
+        <p>
+          Organize your pantry, track ingredients, discover recipes, and manage your grocery spending in one place.
+        </p>
+
+        <ul class="feature-list">
+          <li><span class="feature-dot"></span> Track pantry ingredients and expiration dates</li>
+          <li><span class="feature-dot"></span> Manage weekly budget and purchases</li>
+          <li><span class="feature-dot"></span> Explore recipes based on available ingredients</li>
+        </ul>
+      </div>
+
+      <div class="brand-footer">
+        <div class="palette-card">
+          <h3>Website Color Palette</h3>
+          <div class="palette-swatches">
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <div class="login-card">
+        <span class="eyebrow">Student Grocery Planner</span>
+        <h2>Welcome back</h2>
+        <p class="subtitle">Log in to continue to your dashboard and manage your meals, pantry, and purchases.</p>
+
+        <form>
+          <div class="form-group">
+            <label for="studentEmail">Email</label>
+            <input id="studentEmail" class="form-control" type="email" placeholder="Enter your email" />
+          </div>
+
+          <div class="form-group">
+            <label for="studentPassword">Password</label>
+            <input id="studentPassword" class="form-control" type="password" placeholder="Enter your password" />
+          </div>
+
+          <div class="options-row">
+            <label class="remember-me">
+              <input type="checkbox" />
+              Remember me
+            </label>
+            <a href="#" class="link-btn">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="login-btn">Log In</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <button class="secondary-btn" type="button">Create New Account</button>
+
+        <div class="note-box">
+          This page is only the front-end design. Later, the login button can connect to your Node/Express backend and MySQL database.
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
