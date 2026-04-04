@@ -87,7 +87,7 @@
       <header class="topbar">
         <div>
           <h2>New Ingredient</h2>
-          <p>Create a front-end ingredient form that can later connect to imported datasets and backend storage.</p>
+          <p>Add a new ingredient to the Database.</p>
         </div>
 
         <div class="profile-pill">
@@ -101,27 +101,7 @@
 
       <section class="page-grid">
         <div>
-          <article class="card hero-box">
-            <h3>Create a New Ingredient Record</h3>
-            <p>
-              This form is prepared for your ingredient workflow. Later it can send data to the backend and save new records in the ingredients table.
-            </p>
-
-            <div class="info-list">
-              <div class="info-item">
-                <strong>Ingredient ID</strong>
-                <span>Unique identifier for the ingredient record.</span>
-              </div>
-              <div class="info-item">
-                <strong>Nutrition Data</strong>
-                <span>Protein, calories, and nutrition score fields are already prepared.</span>
-              </div>
-              <div class="info-item">
-                <strong>Image Support</strong>
-                <span>You can later connect this to image URLs from CSV, Excel, or backend uploads.</span>
-              </div>
-            </div>
-          </article>
+          
 
           <article class="card">
             <div class="card-header">
@@ -168,42 +148,18 @@
                 <div class="button-row">
                   <button type="button" class="btn-primary">Save Ingredient</button>
                   <button type="reset" class="btn-secondary">Clear Form</button>
+                  <a href="ingredients-dataset.html" class="btn-secondary">Go Back</a>
                 </div>
               </div>
             </form>
 
-            <p class="helper-text">
-              This form matches your <strong>ingredients</strong> table: ingredient_id, name, category, protein, calories, nutrition_score, image_url.
-            </p>
           </article>
         </div>
 
         <div>
-          <article class="card">
-            <div class="card-header">
-              <h3>Future Preview Area</h3>
-            </div>
 
-            <div class="placeholder-box">
-              <div>
-                <strong>No ingredient preview yet.</strong><br />
-                Later this section can show the selected image, imported CSV values, nutrition preview, or a confirmation card before saving.
-              </div>
-            </div>
-          </article>
 
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="ingredients-dataset.html">Back to Ingredients Dataset</a>
-              <a class="quick-link" href="pantry-list.html">Open Pantry List</a>
-              <a class="quick-link" href="recipes-list.html">Use in Recipes</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-            </div>
-          </article>
+      
         </div>
       </section>
     </main>
