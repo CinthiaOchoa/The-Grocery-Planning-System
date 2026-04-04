@@ -4,48 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meal Planner - Login</title>
+
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/forms.css">
+
   <style>
-    :root {
-      --deep-teal: #044F5F;
-      --teal: #165E6E;
-      --dark-red: #89322A;
-      --red: #AD5247;
-      --coral: #DF7B5D;
-      --sand: #EDC385;
-      --cream: #F7F3EE;
-      --white: #FFFFFF;
-      --text-dark: #1E2A2F;
-      --shadow: 0 16px 40px rgba(4, 79, 95, 0.16);
-      --radius-xl: 26px;
-      --radius-lg: 18px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--cream) 0%, #f1e7db 100%);
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-    }
+    /* Login-only styles */
 
     .page-shell {
       width: 100%;
       max-width: 1100px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       background: var(--white);
       border-radius: 32px;
       overflow: hidden;
-      box-shadow: var(--shadow);
+      box-shadow: 0 16px 40px rgba(4, 79, 95, 0.16);
       min-height: 680px;
     }
 
@@ -186,7 +162,7 @@
       max-width: 420px;
     }
 
-    .login-card .eyebrow {
+    .eyebrow {
       display: inline-block;
       background: rgba(4, 79, 95, 0.08);
       color: var(--deep-teal);
@@ -211,30 +187,6 @@
 
     .form-group {
       margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 700;
-      color: var(--dark-red);
-      font-size: 0.95rem;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 15px 16px;
-      border: 2px solid #e6d9ca;
-      border-radius: 14px;
-      font-size: 1rem;
-      background: var(--white);
-      transition: 0.2s ease;
-      outline: none;
-    }
-
-    .form-control:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 4px rgba(22, 94, 110, 0.12);
     }
 
     .options-row {
@@ -303,7 +255,7 @@
       flex: 1;
     }
 
-    .secondary-btn {
+    .auth-secondary-btn {
       width: 100%;
       padding: 15px;
       border: 2px solid var(--sand);
@@ -316,7 +268,7 @@
       transition: 0.2s ease;
     }
 
-    .secondary-btn:hover {
+    .auth-secondary-btn:hover {
       background: #fff1dd;
     }
 
@@ -388,16 +340,7 @@
       </div>
 
       <div class="brand-footer">
-        <div class="palette-card">
-          <h3>Website Color Palette</h3>
-          <div class="palette-swatches">
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-          </div>
+    
         </div>
       </div>
     </section>
@@ -408,20 +351,20 @@
         <h2>Welcome back</h2>
         <p class="subtitle">Log in to continue to your dashboard and manage your meals, pantry, and purchases.</p>
 
-        <form>
+        <form id="loginForm">
           <div class="form-group">
             <label for="studentEmail">Email</label>
-            <input id="studentEmail" class="form-control" type="email" placeholder="Enter your email" />
+            <input id="studentEmail" name="email" class="form-control" type="email" placeholder="Enter your email" />
           </div>
 
           <div class="form-group">
             <label for="studentPassword">Password</label>
-            <input id="studentPassword" class="form-control" type="password" placeholder="Enter your password" />
+            <input id="studentPassword" name="password" class="form-control" type="password" placeholder="Enter your password" />
           </div>
 
           <div class="options-row">
             <label class="remember-me">
-              <input type="checkbox" />
+              <input type="checkbox" name="remember_me" />
               Remember me
             </label>
             <a href="#" class="link-btn">Forgot password?</a>
@@ -432,11 +375,10 @@
 
         <div class="divider">or</div>
 
-        <button class="secondary-btn" type="button">Create New Account</button>
+        <button class="auth-secondary-btn" type="button" onclick="window.location.href='signup.html'">
+          Create New Account
+        </button>
 
-        <div class="note-box">
-          This page is only the front-end design. Later, the login button can connect to your Node/Express backend and MySQL database.
-        </div>
       </div>
     </section>
   </main>

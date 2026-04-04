@@ -1,0 +1,115 @@
+.layout {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    min-height: 100vh;
+  }
+  
+  .sidebar {
+    background: linear-gradient(180deg, var(--deep-teal) 0%, var(--teal) 100%);
+    color: var(--white);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    box-shadow: 8px 0 24px rgba(4, 79, 95, 0.12);
+  }
+  
+  .brand {
+    padding: 18px 16px;
+    border-radius: var(--radius-lg);
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  
+  .brand h1 {
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  
+  .brand p {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.86);
+  }
+  
+  .nav-title {
+    font-size: 0.80rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.72);
+    margin-bottom: 10px;
+    padding-left: 8px;
+  }
+  
+  .nav-links {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--white);
+    padding: 14px 14px;
+    border-radius: 14px;
+    transition: 0.2s ease;
+    border: 1px solid transparent;
+    font-weight: 600;
+  }
+  
+  .nav-link:hover,
+  .nav-link.active {
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.12);
+  }
+  
+  .nav-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.14);
+    flex-shrink: 0;
+  }
+  
+  .sidebar-footer {
+    margin-top: auto;
+    background: rgba(255,255,255,0.10);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  
+  .sidebar-footer h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  
+  .sidebar-footer p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.84);
+    margin-bottom: 14px;
+  }
+  
+  .sidebar-footer a {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--deep-teal);
+    background: var(--sand);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }

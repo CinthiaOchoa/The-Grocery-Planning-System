@@ -4,37 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meal Planner - Sign Up</title>
-  <style>
-    :root {
-      --deep-teal: #044F5F;
-      --teal: #165E6E;
-      --dark-red: #89322A;
-      --red: #AD5247;
-      --coral: #DF7B5D;
-      --sand: #EDC385;
-      --cream: #F7F3EE;
-      --white: #FFFFFF;
-      --text-dark: #1E2A2F;
-      --shadow: 0 16px 40px rgba(4, 79, 95, 0.16);
-      --radius-xl: 26px;
-      --radius-lg: 18px;
-    }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/forms.css">
+
+  <style>
+    /* Signup-only styles */
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, var(--cream) 0%, #f1e7db 100%);
-      color: var(--text-dark);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 32px;
+      background: linear-gradient(135deg, var(--cream) 0%, #f1e7db 100%);
     }
 
     .page-shell {
@@ -45,7 +29,7 @@
       background: var(--white);
       border-radius: 32px;
       overflow: hidden;
-      box-shadow: var(--shadow);
+      box-shadow: 0 16px 40px rgba(4, 79, 95, 0.16);
       min-height: 760px;
     }
 
@@ -186,7 +170,7 @@
       max-width: 560px;
     }
 
-    .signup-card .eyebrow {
+    .eyebrow {
       display: inline-block;
       background: rgba(173, 82, 71, 0.10);
       color: var(--dark-red);
@@ -213,39 +197,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 18px 16px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 700;
-      color: var(--dark-red);
-      font-size: 0.95rem;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 15px 16px;
-      border: 2px solid #e6d9ca;
-      border-radius: 14px;
-      font-size: 1rem;
-      background: var(--white);
-      transition: 0.2s ease;
-      outline: none;
-    }
-
-    .form-control:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 4px rgba(22, 94, 110, 0.12);
     }
 
     .form-note {
@@ -359,17 +310,7 @@
       </div>
 
       <div class="brand-footer">
-        <div class="palette-card">
-          <h3>Website Color Palette</h3>
-          <div class="palette-swatches">
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-            <div class="swatch"></div>
-          </div>
-        </div>
+        
       </div>
     </section>
 
@@ -379,7 +320,7 @@
         <h2>Sign up</h2>
         <p class="subtitle">Fill in your information to create your account and start using the grocery planning system.</p>
 
-        <form>
+        <form id="signupForm">
           <div class="form-grid">
             <div class="form-group full">
               <label for="name">Student Name</label>
@@ -425,11 +366,7 @@
               <input id="confirm_password" name="confirm_password" class="form-control" type="password" placeholder="Confirm password" />
             </div>
 
-            <div class="form-group full">
-              <label for="profile_picture_url">Profile Picture URL</label>
-              <input id="profile_picture_url" name="profile_picture_url" class="form-control" type="text" placeholder="Paste image URL if you want" />
-              <p class="form-note">You can keep this optional for now and later replace it with image upload.</p>
-            </div>
+            
           </div>
 
           <button type="submit" class="signup-btn">Create Account</button>
@@ -437,10 +374,6 @@
 
         <div class="bottom-row">
           Already have an account? <a href="login.html">Log in</a>
-        </div>
-
-        <div class="note-box">
-          This page is ready for front-end use. Later, the form can send the data to your backend and insert it into the <strong>student</strong> table in MySQL.
         </div>
       </div>
     </section>
