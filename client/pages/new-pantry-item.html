@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Planner - New Pantry Item</title>
+
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/tables.css">
+
+  <style>
+    .page-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-note {
+      margin-top: -6px;
+      margin-bottom: 16px;
+      color: #6f5d57;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1150px) {
+      .page-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Meal Planner</h1>
+        <p>Healthy meals, pantry tracking, recipes, and budget management for students.</p>
+      </div>
+
+      <div>
+        <div class="nav-title">Main Menu</div>
+        <nav class="nav-links">
+          <a class="nav-link" href="dashboard.html"><span class="nav-badge">🏠</span> Dashboard</a>
+          <a class="nav-link active" href="pantry-list.html"><span class="nav-badge">🥫</span> Pantry</a>
+          <a class="nav-link" href="ingredients-dataset.html"><span class="nav-badge">🥬</span> Ingredients</a>
+          <a class="nav-link" href="recipes-list.html"><span class="nav-badge">🍲</span> Recipes</a>
+          <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
+          <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
+          <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
+          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h2>New Pantry Item</h2>
+          <p>Add an ingredient to the selected pantry.</p>
+        </div>
+
+        <div class="profile-pill">
+          <div class="avatar">SU</div>
+          <div>
+            <small>Logged in as</small>
+            <strong>Student User</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="page-grid">
+        <div>
+          <article class="card">
+            <div class="card-header">
+              <h3>Pantry Item Form</h3>
+            </div>
+
+            <form id="pantryItemForm" class="form-grid">
+              <p class="form-note full">
+                Select an ingredient, then enter the pantry item details.
+              </p>
+
+              <div class="form-group">
+                <label for="pantry_item_id">Pantry Item ID</label>
+                <input
+                  id="pantry_item_id"
+                  name="pantry_item_id"
+                  class="form-control"
+                  type="text"
+                  placeholder="Example: PI004"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="ingredient_select">Ingredient</label>
+                <select
+                  id="ingredient_select"
+                  name="ingredient_select"
+                  class="form-control"
+                  required
+                >
+                  <option value="">Select ingredient</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="ingredient_id">Ingredient ID</label>
+                <input
+                  id="ingredient_id"
+                  name="ingredient_id"
+                  class="form-control"
+                  type="text"
+                  placeholder="Auto-filled"
+                  readonly
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="unit">Unit</label>
+                <input
+                  id="unit"
+                  name="unit"
+                  class="form-control"
+                  type="text"
+                  placeholder="Example: kg, pcs, liters"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input
+                  id="quantity"
+                  name="quantity"
+                  class="form-control"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Enter quantity"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="date_added">Date Added</label>
+                <input
+                  id="date_added"
+                  name="date_added"
+                  class="form-control"
+                  type="date"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="expiration_date">Expiration Date</label>
+                <input
+                  id="expiration_date"
+                  name="expiration_date"
+                  class="form-control"
+                  type="date"
+                  required
+                />
+              </div>
+
+              <div class="form-group full">
+                <div class="button-row">
+                  <button type="submit" class="btn-primary">Add Pantry Item</button>
+                  <button type="reset" class="btn-secondary">Clear Form</button>
+                  <a id="goBackBtn" class="btn-secondary">Go Back</a>
+                </div>
+              </div>
+            </form>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pantryId = params.get("pantryId");
+
+    const pantryItemForm = document.getElementById("pantryItemForm");
+    const goBackBtn = document.getElementById("goBackBtn");
+    const ingredientSelect = document.getElementById("ingredient_select");
+    const ingredientIdInput = document.getElementById("ingredient_id");
+
+    const ingredients = [
+      { ingredientId: "ING001", name: "Tomato" },
+      { ingredientId: "ING002", name: "Milk" },
+      { ingredientId: "ING003", name: "Rice" },
+      { ingredientId: "ING004", name: "Chicken" },
+      { ingredientId: "ING005", name: "Onion" },
+      { ingredientId: "ING006", name: "Potato" }
+    ];
+
+    if (goBackBtn) {
+      goBackBtn.href = pantryId
+        ? `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`
+        : "pantry-list.html";
+    }
+
+    function fillIngredientOptions() {
+      ingredients.forEach((ingredient) => {
+        const option = document.createElement("option");
+        option.value = ingredient.ingredientId;
+        option.textContent = `${ingredient.name} (${ingredient.ingredientId})`;
+        option.dataset.name = ingredient.name;
+        ingredientSelect.appendChild(option);
+      });
+    }
+
+    function updateIngredientId() {
+      ingredientIdInput.value = ingredientSelect.value || "";
+    }
+
+    function getSavedPantryItems() {
+      return JSON.parse(localStorage.getItem("pantryItems")) || [];
+    }
+
+    function savePantryItems(items) {
+      localStorage.setItem("pantryItems", JSON.stringify(items));
+    }
+
+    fillIngredientOptions();
+
+    ingredientSelect.addEventListener("change", updateIngredientId);
+
+    pantryItemForm.addEventListener("reset", () => {
+      setTimeout(() => {
+        ingredientSelect.selectedIndex = 0;
+        ingredientIdInput.value = "";
+      }, 0);
+    });
+
+    pantryItemForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const pantryItemId = document.getElementById("pantry_item_id").value.trim();
+      const ingredientId = ingredientIdInput.value.trim();
+      const unit = document.getElementById("unit").value.trim();
+      const quantity = document.getElementById("quantity").value.trim();
+      const dateAdded = document.getElementById("date_added").value;
+      const expirationDate = document.getElementById("expiration_date").value;
+
+      if (!pantryId) {
+        alert("No pantry was selected.");
+        return;
+      }
+
+      if (!pantryItemId || !ingredientId || !unit || !quantity || !dateAdded || !expirationDate) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const savedPantryItems = getSavedPantryItems();
+
+      const alreadyExists = savedPantryItems.some(
+        (item) => item.pantryItemId.toLowerCase() === pantryItemId.toLowerCase()
+      );
+
+      if (alreadyExists) {
+        alert("This Pantry Item ID already exists. Please use a different one.");
+        return;
+      }
+
+      const selectedIngredient = ingredients.find(
+        (ingredient) => ingredient.ingredientId === ingredientId
+      );
+
+      const newPantryItem = {
+        pantryItemId: pantryItemId,
+        pantryId: pantryId,
+        ingredientId: ingredientId,
+        ingredientName: selectedIngredient ? selectedIngredient.name : "",
+        unit: unit,
+        quantity: Number(quantity),
+        dateAdded: dateAdded,
+        expirationDate: expirationDate
+      };
+
+      savedPantryItems.push(newPantryItem);
+      savePantryItems(savedPantryItems);
+
+      window.location.href = `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`;
+    });
+  </script>
+</body>
+</html>

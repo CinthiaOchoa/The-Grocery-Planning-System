@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Planner - New Pantry</title>
+
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/forms.css">
+
+  <style>
+    .form-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group.full {
+      grid-column: span 2;
+    }
+
+    .form-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Meal Planner</h1>
+        <p>Healthy meals, pantry tracking, recipes, and budget management for students.</p>
+      </div>
+
+      <div>
+        <div class="nav-title">Main Menu</div>
+        <nav class="nav-links">
+          <a class="nav-link" href="dashboard.html">🏠 Dashboard</a>
+          <a class="nav-link active" href="pantry-list.html">🥫 Pantry</a>
+          <a class="nav-link" href="ingredients-dataset.html">🥬 Ingredients</a>
+          <a class="nav-link" href="recipes-list.html">🍲 Recipes</a>
+          <a class="nav-link" href="stores-list.html">🛒 Stores</a>
+          <a class="nav-link" href="profile.html">👤 Profile</a>
+          <a class="nav-link" href="settings.html">⚙️ Settings</a>
+          <a class="nav-link" href="login.html">↩ Sign Out</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h2>Create New Pantry</h2>
+          <p>Define a pantry location (e.g., fridge, shelf, cabinet).</p>
+        </div>
+      </header>
+
+      <section class="card form-container">
+        <div class="card-header">
+          <h3>Pantry Information</h3>
+        </div>
+
+        <form id="pantryForm" class="form-grid">
+          <div class="form-group">
+            <label for="pantry_id">Pantry ID</label>
+            <input id="pantry_id" name="pantry_id" class="form-control" type="text" placeholder="Enter pantry ID" />
+          </div>
+        
+          <div class="form-group">
+            <label for="type">Type</label>
+            <input id="type" name="type" class="form-control" type="text" placeholder="Enter pantry type" />
+          </div>
+        
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input id="location" name="location" class="form-control" type="text" placeholder="Enter pantry location" />
+          </div>
+        
+          <div class="form-group full">
+            <div class="button-row">
+              <button type="submit" class="btn-primary">Create Pantry</button>
+              <button type="reset" class="btn-secondary">Clear Form</button>
+              <a href="pantry-list.html" class="btn-secondary">Go Back</a>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script>
+    const pantryForm = document.getElementById("pantryForm");
+  
+    if (pantryForm) {
+      pantryForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+  
+        const pantryId = document.getElementById("pantry_id").value.trim();
+        const type = document.getElementById("type").value.trim();
+        const location = document.getElementById("location").value.trim();
+  
+        if (!pantryId || !type || !location) {
+          alert("Please fill in Pantry ID, Type, and Location.");
+          return;
+        }
+  
+        const newPantry = {
+          pantryId: pantryId,
+          type: type,
+          location: location
+        };
+  
+        const savedPantries = JSON.parse(localStorage.getItem("pantries")) || [];
+        savedPantries.push(newPantry);
+        localStorage.setItem("pantries", JSON.stringify(savedPantries));
+  
+        window.location.href = "pantry-list.html";
+      });
+    }
+  </script>
+  <script type="module" src="../js/new-pantry.js"></script>
+</body>
+</html>

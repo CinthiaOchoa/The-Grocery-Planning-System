@@ -3,50 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meal Planner - Ingredients Dataset</title>
+  <title>Meal Planner - Pantry Items</title>
 
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tables.css">
-  <script src="../js/ingredients.js"></script>
 
   <style>
-    /* Ingredients-dataset-only styles */
-
-    .ingredient-name {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .ingredient-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(22,94,110,0.10);
-      color: var(--teal);
-      font-size: 1.15rem;
-      flex-shrink: 0;
-    }
-
     .action-group {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .ingredients-empty-state {
+    .pantry-items-empty-state {
       min-height: 220px;
       display: flex;
       align-items: center;
@@ -55,26 +27,6 @@
       padding: 30px;
       color: var(--text-soft);
       line-height: 1.6;
-    }
-
-    @media (max-width: 1200px) {
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .table-link {
-  color: var(--teal);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.table-link:hover {
-  text-decoration: underline;
-}
-
-.highlight-row {
-  background: rgba(22, 94, 110, 0.08);
-}
     }
   </style>
 </head>
@@ -90,8 +42,8 @@
         <div class="nav-title">Main Menu</div>
         <nav class="nav-links">
           <a class="nav-link" href="dashboard.html"><span class="nav-badge">🏠</span> Dashboard</a>
-          <a class="nav-link" href="pantry-list.html"><span class="nav-badge">🥫</span> Pantry</a>
-          <a class="nav-link active" href="ingredients-dataset.html"><span class="nav-badge">🥬</span> Ingredients</a>
+          <a class="nav-link active" href="pantry-list.html"><span class="nav-badge">🥫</span> Pantry</a>
+          <a class="nav-link" href="ingredients-dataset.html"><span class="nav-badge">🥬</span> Ingredients</a>
           <a class="nav-link" href="recipes-list.html"><span class="nav-badge">🍲</span> Recipes</a>
           <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
@@ -99,15 +51,13 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      
     </aside>
 
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h2>Ingredients Dataset</h2>
-          <p>Browse ingredient information including nutrition score, calories, protein, category, and image-ready records.</p>
+          <h2>Pantry Items</h2>
+          <p id="pantryItemsSubtitle">View all items inside the selected pantry.</p>
         </div>
 
         <div class="profile-pill">
@@ -119,52 +69,55 @@
         </div>
       </header>
 
-     
-
       <section class="card">
         <div class="card-header">
-          <h3>Search Ingredients</h3>
+          <h3>Pantry Items Table</h3>
         </div>
 
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by ingredient name, id, or category" />
-          <select class="filter-select">
-            <option>All Categories</option>
-          </select>
-          <select class="filter-select">
-            <option>All Nutrition Scores</option>
-          </select>
-          <a href="new-ingredient.html" class="btn-primary">+ New Ingredient</a>
+          <input class="search-input" type="text" placeholder="Search by pantry item id or ingredient id" />
+          <a id="newPantryItemBtn" class="btn-primary">+ New Pantry Item</a>
+          <a href="pantry-list.html" class="btn-secondary">Go Back</a>
         </div>
 
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
+                <th>Pantry Item ID</th>
                 <th>Ingredient ID</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Protein</th>
-                <th>Calories</th>
-                <th>Nutrition Score</th>
+                <th>Unit</th>
+                <th>Quantity</th>
+                <th>Date Added</th>
+                <th>Expiration Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="ingredientsTableBody">
-            </tbody>
+            <tbody id="pantryItemsTableBody"></tbody>
           </table>
 
-          <div class="ingredients-empty-state">
+          <div class="pantry-items-empty-state">
             <div>
-              <strong>No ingredient data loaded yet.</strong><br />
-              This table is intentionally empty so it can later receive data from CSV files, Excel imports, backend routes, or MySQL queries.
+              <strong>No pantry items loaded yet.</strong><br />
+              This table will display the pantry items that belong to the selected pantry.
             </div>
           </div>
         </div>
       </section>
-
-      
-      </section>
     </main>
   </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pantryId = params.get("pantryId");
+  
+    const newPantryItemBtn = document.getElementById("newPantryItemBtn");
+  
+    if (newPantryItemBtn) {
+      newPantryItemBtn.href = pantryId
+        ? `new-pantry-item.html?pantryId=${pantryId}`
+        : "new-pantry-item.html";
+    }
+  </script>
+  <script type="module" src="../js/pantry-items.js"></script>
 </body>
 </html>

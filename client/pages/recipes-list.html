@@ -119,13 +119,27 @@
         <a href="new-recipe.html" class="btn-primary">+ Add Recipe</a>
       </div>
     </section>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Recipe ID</th>
+            <th>Name</th>
+            <th>Servings</th>
+            <th>Preparation Time</th>
+            <th>Cook Time</th>
+            <th>Type Recipe</th>
+            <th>Recipe Steps</th>
+          </tr>
+        </thead>
+        <tbody id="ingredientsTableBody">
+        </tbody>
+      </table>
 
-    <!-- RECIPES GRID -->
     <section class="recipes-grid" id="recipesContainer">
       <!-- EMPTY (DATA COMES FROM CSV / BACKEND LATER) -->
     </section>
 
-    <!-- EMPTY STATE -->
     <div class="recipes-empty">
       <strong>No recipes loaded yet.</strong><br>
       This page is ready to receive data from CSV files or backend.

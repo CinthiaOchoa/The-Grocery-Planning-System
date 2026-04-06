@@ -52,6 +52,18 @@
         grid-template-columns: 1fr;
       }
     }
+    .info-banner {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(22,94,110,0.08);
+    border: 1px solid rgba(22,94,110,0.16);
+    color: var(--text-main);
+  }
+
+  .info-banner strong {
+    color: var(--teal);
+    margin-right: 8px;
+  }
   </style>
 </head>
 <body>
@@ -86,8 +98,8 @@
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h2>Edit Pantry Item</h2>
-          <p>Update pantry item details like quantity, unit, date added, and expiration date without hardcoded data.</p>
+          <h2 id="editPageTitle">Edit Pantry Item</h2>
+          <p id="editPageSubtitle">Update the selected pantry item details.</p>
         </div>
 
         <div class="profile-pill">
@@ -101,69 +113,47 @@
 
       <section class="page-grid">
         <div>
-          <article class="card hero-box">
-            <h3>Update Pantry Item Details</h3>
-            <p>
-              This front-end form is prepared to edit a pantry record later using live data from your backend, CSV, Excel import, or MySQL database.
-            </p>
-
-            <div class="info-list">
-              <div class="info-item">
-                <strong>Pantry Connection</strong>
-                <span>Edit the pantry item using pantry_id and ingredient_id as the record reference.</span>
-              </div>
-              <div class="info-item">
-                <strong>Quantity Control</strong>
-                <span>Adjust amount and unit as pantry inventory changes.</span>
-              </div>
-              <div class="info-item">
-                <strong>Date Tracking</strong>
-                <span>Keep expiration and date added fields updated for alerts and recommendations.</span>
-              </div>
-            </div>
-          </article>
-
           <article class="card">
             <div class="card-header">
-              <h3>Pantry Item Form</h3>
+              <h3 id="selectedItemHeading">Pantry Item Form</h3>
             </div>
 
-            <form class="form-grid" id="pantryItemForm">
+            <form class="form-grid" id="pantryEditForm">
               <div class="form-group">
-                <label for="pantry_id">Pantry ID</label>
-                <input id="pantry_id" name="pantry_id" class="form-control" type="text" placeholder="Enter pantry id" data-field="pantry_id" />
+                <label for="pantry_item_id">Pantry Item ID</label>
+                <input id="pantry_item_id" name="pantry_item_id" class="form-control" type="text" readonly />
               </div>
-
+            
               <div class="form-group">
                 <label for="ingredient_id">Ingredient ID</label>
-                <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" data-field="ingredient_id" />
+                <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" readonly />
               </div>
-
-              <div class="form-group">
-                <label for="quantity">Quantity</label>
-                <input id="quantity" name="quantity" class="form-control" type="number" step="0.01" placeholder="Enter quantity" data-field="quantity" />
-              </div>
-
+            
               <div class="form-group">
                 <label for="unit">Unit</label>
-                <input id="unit" name="unit" class="form-control" type="text" placeholder="lb, box, bag, bottle..." data-field="unit" />
+                <input id="unit" name="unit" class="form-control" type="text" placeholder="Enter unit" />
               </div>
-
+            
+              <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input id="quantity" name="quantity" class="form-control" type="number" step="0.01" placeholder="Enter quantity" />
+              </div>
+            
               <div class="form-group">
                 <label for="date_added">Date Added</label>
-                <input id="date_added" name="date_added" class="form-control" type="date" data-field="date_added" />
+                <input id="date_added" name="date_added" class="form-control" type="date" />
               </div>
-
+            
               <div class="form-group">
                 <label for="expiration_date">Expiration Date</label>
-                <input id="expiration_date" name="expiration_date" class="form-control" type="date" data-field="expiration_date" />
+                <input id="expiration_date" name="expiration_date" class="form-control" type="date" />
               </div>
-
+            
               <div class="form-group full">
                 <div class="button-row">
-                  <button type="button" class="btn-primary">Save Changes</button>
+                  <button type="submit" class="btn-primary">Save Changes</button>
                   <button type="reset" class="btn-secondary">Clear Form</button>
-                  <button type="button" class="btn-danger">Delete Item</button>
+                  <a id="goBackBtn" class="btn-secondary">Go Back</a>
                 </div>
               </div>
             </form>
@@ -174,35 +164,64 @@
           </article>
         </div>
 
-        <div>
-          <article class="card">
-            <div class="card-header">
-              <h3>Future Preview Area</h3>
-            </div>
 
-            <div class="placeholder-box">
-              <div>
-                <strong>No pantry item preview yet.</strong><br />
-                Later this section can display the selected ingredient name, pantry location, current stock, expiration warning, or imported values before saving.
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="pantry-list.html">Back to Pantry List</a>
-              <a class="quick-link" href="ingredients-dataset.html">Browse Ingredients</a>
-              <a class="quick-link" href="recipes-list.html">Use in Recipes</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-            </div>
-          </article>
-        </div>
       </section>
     </main>
   </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+  
+    const pantryItemId = params.get("pantryItemId") || "";
+    const pantryId = params.get("pantryId") || "";
+    const ingredientId = params.get("ingredientId") || "";
+    const unit = params.get("unit") || "";
+    const quantity = params.get("quantity") || "";
+    const dateAdded = params.get("dateAdded") || "";
+    const expirationDate = params.get("expirationDate") || "";
+  
+    const pantryItemInput = document.getElementById("pantry_item_id");
+    const ingredientInput = document.getElementById("ingredient_id");
+    const unitInput = document.getElementById("unit");
+    const quantityInput = document.getElementById("quantity");
+    const dateAddedInput = document.getElementById("date_added");
+    const expirationDateInput = document.getElementById("expiration_date");
+    const goBackBtn = document.getElementById("goBackBtn");
+    const form = document.getElementById("pantryEditForm");
+  
+    if (pantryItemInput) pantryItemInput.value = pantryItemId;
+    if (ingredientInput) ingredientInput.value = ingredientId;
+    if (unitInput) unitInput.value = unit;
+    if (quantityInput) quantityInput.value = quantity;
+    if (dateAddedInput) dateAddedInput.value = dateAdded;
+    if (expirationDateInput) expirationDateInput.value = expirationDate;
+  
+    if (goBackBtn) {
+      goBackBtn.href = pantryId
+        ? `pantry-items.html?pantryId=${pantryId}`
+        : "pantry-list.html";
+    }
+  
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+  
+        const updatedItem = {
+          pantryItemId: pantryItemInput.value,
+          pantryId: pantryId,
+          ingredientId: ingredientInput.value,
+          unit: unitInput.value,
+          quantity: quantityInput.value,
+          dateAdded: dateAddedInput.value,
+          expirationDate: expirationDateInput.value
+        };
+  
+        localStorage.setItem("updatedPantryItem", JSON.stringify(updatedItem));
+  
+        window.location.href = pantryId
+          ? `pantry-items.html?pantryId=${pantryId}`
+          : "pantry-list.html";
+      });
+    }
+  </script>
 </body>
 </html>
