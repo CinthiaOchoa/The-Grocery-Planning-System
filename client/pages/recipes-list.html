@@ -49,7 +49,7 @@
 
     .recipe-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       margin-top: auto;
     }
@@ -61,6 +61,46 @@
       border: 1px dashed #e0cba9;
       background: #fffdfa;
       color: var(--text-soft);
+      margin-top: 20px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons a {
+      text-decoration: none;
+    }
+
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-view {
+      background-color: #d97706;
+      color: white;
+    }
+
+    .btn-ingredients {
+      background-color: #15803d;
+      color: white;
+    }
+
+    .btn-steps {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-small:hover {
+      opacity: 0.9;
     }
 
     @media (max-width: 600px) {
@@ -68,6 +108,33 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-small {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .btn-ingredients {
+    background-color: #15803d;
+    color: white;
+  }
+
+  .btn-steps {
+    background-color: #2563eb;
+    color: white;
+  }
   </style>
 </head>
 
@@ -119,25 +186,56 @@
         <a href="new-recipe.html" class="btn-primary">+ Add Recipe</a>
       </div>
     </section>
+
+    <!-- RECIPES TABLE -->
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
             <th>Recipe ID</th>
             <th>Name</th>
+            <th>Type</th>
             <th>Servings</th>
-            <th>Preparation Time</th>
-            <th>Cook Time</th>
-            <th>Type Recipe</th>
-            <th>Recipe Steps</th>
+            <th>Total Preparation Time</th>
+            <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="ingredientsTableBody">
+        <tbody id="recipesTableBody">
+          <!-- Example row -->
+          <tr>
+            <td>R001</td>
+            <td>Chicken Rice Bowl</td>
+            <td>Lunch</td>
+            <td>2</td>
+            <td>30 min</td>
+            <td>
+              <div class="action-buttons">
+                <a href="recipe-ingredients.html?recipe_id=R001" class="btn-small btn-ingredients">View Ingredients</a>
+                <a href="recipe-steps.html?recipe_id=R001" class="btn-small btn-steps">View Steps</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>R002</td>
+            <td>Vegetable Pasta</td>
+            <td>Dinner</td>
+            <td>4</td>
+            <td>25 min</td>
+            <td>
+              <div class="action-buttons">
+                <a href="recipe-ingredients.html?recipe_id=R002" class="btn-small btn-ingredients">View Ingredients</a>
+                <a href="recipe-steps.html?recipe_id=R002" class="btn-small btn-steps">View Steps</a>
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
+    </div>
 
+    <!-- OPTIONAL GRID SECTION -->
     <section class="recipes-grid" id="recipesContainer">
-      <!-- EMPTY (DATA COMES FROM CSV / BACKEND LATER) -->
+      <!-- DATA CAN GO HERE LATER IF YOU WANT CARDS TOO -->
     </section>
 
     <div class="recipes-empty">

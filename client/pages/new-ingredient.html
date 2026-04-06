@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tables.css">
+  <script src="../js/ingredients.js" defer></script>
 
   <style>
     /* New-ingredient-only styles */
@@ -113,35 +114,35 @@
                 <label for="ingredient_id">Ingredient ID</label>
                 <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" data-field="ingredient_id" />
               </div>
-
+            
               <div class="form-group">
                 <label for="name">Ingredient Name</label>
                 <input id="name" name="name" class="form-control" type="text" placeholder="Enter ingredient name" data-field="name" />
               </div>
-
+            
               <div class="form-group">
                 <label for="category">Category</label>
                 <input id="category" name="category" class="form-control" type="text" placeholder="Enter category" data-field="category" />
               </div>
-
+            
               <div class="form-group">
                 <label for="protein">Protein</label>
                 <input id="protein" name="protein" class="form-control" type="number" step="0.1" placeholder="Enter protein value" data-field="protein" />
               </div>
-
+            
               <div class="form-group">
                 <label for="calories">Calories</label>
                 <input id="calories" name="calories" class="form-control" type="number" placeholder="Enter calories" data-field="calories" />
               </div>
-
+            
               <div class="form-group">
                 <label for="nutrition_score">Nutrition Score</label>
                 <input id="nutrition_score" name="nutrition_score" class="form-control" type="number" step="0.1" placeholder="Enter nutrition score" data-field="nutrition_score" />
               </div>
-
+            
               <div class="form-group full">
                 <div class="button-row">
-                  <button type="button" class="btn-primary">Save Ingredient</button>
+                  <button type="submit" class="btn-primary">Save Ingredient</button>
                   <button type="reset" class="btn-secondary">Clear Form</button>
                   <a href="ingredients-dataset.html" class="btn-secondary">Go Back</a>
                 </div>
@@ -159,5 +160,6 @@
       </section>
     </main>
   </div>
+
 </body>
 </html>

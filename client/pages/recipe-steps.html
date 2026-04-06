@@ -12,11 +12,9 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Recipe-steps-only styles */
-
     .recipe-hero {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1fr;
       gap: 20px;
       margin-bottom: 24px;
     }
@@ -26,6 +24,8 @@
       color: var(--white);
       position: relative;
       overflow: hidden;
+      border-radius: 20px;
+      padding: 24px;
     }
 
     .hero-card::after {
@@ -48,6 +48,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
+      margin-top: 12px;
     }
 
     .meta-pill {
@@ -62,11 +63,12 @@
     .steps-list {
       display: grid;
       gap: 16px;
+      margin-top: 16px;
     }
 
     .step-card {
       display: grid;
-      grid-template-columns: 72px 1fr auto;
+      grid-template-columns: 72px 1fr;
       gap: 18px;
       align-items: start;
       padding: 18px;
@@ -101,22 +103,9 @@
       line-height: 1.6;
     }
 
-    .step-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
     .steps-empty-state {
-      min-height: 220px;
-      display: flex;
+      min-height: 180px;
+      display: none;
       align-items: center;
       justify-content: center;
       text-align: center;
@@ -126,22 +115,20 @@
       border-radius: 18px;
       background: #fffdfa;
       border: 1px dashed #e0cba9;
+      margin-top: 16px;
     }
 
-    @media (max-width: 1200px) {
-      .recipe-hero,
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
+    .page-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
 
-      .step-card {
-        grid-template-columns: 72px 1fr;
-      }
-
-      .step-actions {
-        grid-column: 1 / -1;
-        justify-content: flex-start;
-      }
+    .message-box {
+      margin-top: 14px;
     }
 
     @media (max-width: 640px) {
@@ -167,21 +154,15 @@
       <div>
         <div class="nav-title">Main Menu</div>
         <nav class="nav-links">
-          <a class="nav-link" href="dashboard.html"><span class="nav-badge">🏠</span> Dashboard</a>
-          <a class="nav-link" href="pantry-list.html"><span class="nav-badge">🥫</span> Pantry</a>
-          <a class="nav-link" href="ingredients-dataset.html"><span class="nav-badge">🥬</span> Ingredients</a>
-          <a class="nav-link active" href="recipes-list.html"><span class="nav-badge">🍲</span> Recipes</a>
-          <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
-          <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
-          <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="dashboard.html">🏠 Dashboard</a>
+          <a class="nav-link" href="pantry-list.html">🥫 Pantry</a>
+          <a class="nav-link" href="ingredients-dataset.html">🥬 Ingredients</a>
+          <a class="nav-link active" href="recipes-list.html">🍲 Recipes</a>
+          <a class="nav-link" href="stores-list.html">🛒 Stores</a>
+          <a class="nav-link" href="profile.html">👤 Profile</a>
+          <a class="nav-link" href="settings.html">⚙️ Settings</a>
+          <a class="nav-link" href="login.html">↩ Sign Out</a>
         </nav>
-      </div>
-
-      <div class="sidebar-footer">
-        <h3>Cooking Flow</h3>
-        <p>Recipe steps help users understand how to prepare the meal after checking ingredients and pantry matches.</p>
-        <a href="recipe-ingredients.html">Back to Ingredients</a>
       </div>
     </aside>
 
@@ -189,54 +170,29 @@
       <header class="topbar">
         <div>
           <h2>Recipe Steps</h2>
-          <p>Review the ordered cooking instructions for a selected recipe and manage each step clearly.</p>
-        </div>
-
-        <div class="profile-pill">
-          <div class="avatar">SU</div>
-          <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
-          </div>
+          <p>Review the cooking instructions for a selected recipe.</p>
         </div>
       </header>
 
+      <div class="page-actions">
+        <div>
+          <a href="recipes-list.html" class="btn-secondary">← Go Back</a>
+        </div>
+        <div>
+          <a id="newStepBtn" href="#" class="btn-primary">+ New Recipe Step</a>
+        </div>
+      </div>
+
       <section class="recipe-hero">
-        <article class="card hero-card">
-          <h3>Selected Recipe</h3>
-          <p>
-            Follow the preparation steps in order to cook the recipe correctly. Each step is connected to the selected recipe and should be saved using the step number sequence.
-          </p>
+        <div class="hero-card">
+          <h3 id="recipeTitle">Recipe Steps</h3>
+          <p id="recipeSubtitle">Loading recipe information...</p>
+
           <div class="hero-meta">
-            <span class="meta-pill">Recipe ID: --</span>
-            <span class="meta-pill">Total Steps: --</span>
-            <span class="meta-pill">Prep Time: --</span>
-            <span class="meta-pill">Difficulty: --</span>
+            <span class="meta-pill" id="metaRecipeId">Recipe ID: -</span>
+            <span class="meta-pill" id="metaStepCount">Steps: 0</span>
           </div>
-        </article>
-
-        <article class="card">
-          <div class="card-header">
-            <h3>Steps Summary</h3>
-          </div>
-
-          <div class="stats-list">
-            <div class="stat-card">
-              <strong>Ordered Flow</strong>
-              <span>Each step follows a clear sequence using step_number.</span>
-            </div>
-
-            <div class="stat-card">
-              <strong>Easy to Edit</strong>
-              <span>You can revise descriptions and reorder steps later.</span>
-            </div>
-
-            <div class="stat-card">
-              <strong>Recipe Link</strong>
-              <span>All steps belong to the selected recipe record only.</span>
-            </div>
-          </div>
-        </article>
+        </div>
       </section>
 
       <section class="card">
@@ -244,74 +200,20 @@
           <h3>Cooking Instructions</h3>
         </div>
 
-        <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by step number or keyword in description" />
-          <select class="filter-select">
-            <option>All Steps</option>
-            <option>Preparation</option>
-            <option>Cooking</option>
-            <option>Final Assembly</option>
-          </select>
-          <a href="recipes-list.html" class="btn-secondary">Back to Recipes</a>
-        </div>
+        <div class="steps-list" id="recipeStepsList"></div>
 
-        <div class="steps-list" id="recipeStepsList">
-        </div>
-
-        <div class="steps-empty-state">
+        <div class="steps-empty-state" id="emptyState">
           <div>
             <strong>No recipe steps loaded yet.</strong><br />
-            This area is intentionally empty so it can later receive recipe step data from CSV files, Excel imports, backend routes, or MySQL queries.
+            Add a new recipe step to start building the instructions.
           </div>
         </div>
-      </section>
 
-      <section class="bottom-grid">
-        <article class="card">
-          <div class="card-header">
-            <h3>Add New Recipe Step</h3>
-          </div>
-
-          <form class="form-grid" id="recipeStepForm">
-            <div class="form-group">
-              <label for="recipe_id">Recipe ID</label>
-              <input id="recipe_id" name="recipe_id" class="form-control" type="text" placeholder="Enter recipe id" data-field="recipe_id" />
-            </div>
-
-            <div class="form-group">
-              <label for="step_number">Step Number</label>
-              <input id="step_number" name="step_number" class="form-control" type="number" placeholder="Enter step number" data-field="step_number" />
-            </div>
-
-            <div class="form-group full">
-              <label for="description">Step Description</label>
-              <textarea id="description" name="description" class="form-control" placeholder="Write the full cooking instruction for this step" data-field="description"></textarea>
-            </div>
-
-            <div class="form-group full">
-              <button type="button" class="btn-primary">Save Recipe Step</button>
-            </div>
-          </form>
-
-          <p class="helper-text" style="margin-top: 14px;">
-            This form matches your <strong>recipe_steps</strong> table: recipe_id, step_number, description.
-          </p>
-        </article>
-
-        <article class="card">
-          <div class="card-header">
-            <h3>Quick Links</h3>
-          </div>
-
-          <div class="quick-links">
-            <a class="quick-link" href="recipe-ingredients.html">Open Recipe Ingredients</a>
-            <a class="quick-link" href="recipes-list.html">Back to Recipes List</a>
-            <a class="quick-link" href="pantry-list.html">Compare With Pantry</a>
-            <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-          </div>
-        </article>
+        <div id="pageMessage" class="message-box"></div>
       </section>
     </main>
   </div>
+
+  <script type="module" src="../js/recipe-steps.js"></script>
 </body>
 </html>

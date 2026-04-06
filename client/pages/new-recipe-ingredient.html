@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Meal Planner - Add Recipe</title>
+  <title>Meal Planner - Add Recipe Ingredient</title>
 
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/sidebar.css">
@@ -19,16 +19,6 @@
 
     .full {
       grid-column: 1 / -1;
-    }
-
-    .note-box {
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 14px;
-      background: #fff8ef;
-      border-left: 4px solid var(--sand);
-      font-size: 0.92rem;
-      color: var(--text-soft);
     }
 
     .form-actions {
@@ -49,11 +39,9 @@
     }
   </style>
 </head>
-
 <body>
 <div class="layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
       <h1>Meal Planner</h1>
@@ -74,103 +62,77 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
     <header class="topbar">
       <div>
-        <h2>Add New Recipe</h2>
-        <p>Create a recipe record.</p>
+        <h2>Add Recipe Ingredient</h2>
+        <p>Add an ingredient to this recipe.</p>
       </div>
     </header>
 
     <section class="card">
       <div class="card-header">
-        <h3>Recipe Information</h3>
+        <h3>Recipe Ingredient Information</h3>
       </div>
 
-      <form id="recipeForm" class="form-layout">
+      <form id="recipeIngredientForm" class="form-layout">
         <div class="form-group">
           <label for="recipe_id">Recipe ID</label>
+          <input id="recipe_id" name="recipe_id" class="form-control" type="text" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="ingredient_id">Ingredient ID</label>
           <input
-            id="recipe_id"
-            name="recipe_id"
+            id="ingredient_id"
+            name="ingredient_id"
             class="form-control"
             type="text"
-            placeholder="Enter recipe ID"
+            placeholder="Enter ingredient ID"
             required
           />
         </div>
 
         <div class="form-group">
-          <label for="name">Recipe Name</label>
+          <label for="amount">Amount</label>
           <input
-            id="name"
-            name="name"
-            class="form-control"
-            type="text"
-            placeholder="Enter recipe name"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="type">Type</label>
-          <input
-            id="type"
-            name="type"
-            class="form-control"
-            type="text"
-            placeholder="e.g. Breakfast, Lunch, Dinner"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="servings">Servings</label>
-          <input
-            id="servings"
-            name="servings"
+            id="amount"
+            name="amount"
             class="form-control"
             type="number"
-            min="1"
-            placeholder="Enter number of servings"
+            min="0"
+            step="0.01"
+            placeholder="Enter amount"
             required
           />
         </div>
 
-        <div class="form-group full">
-          <label for="total_time_prep">Total Preparation Time (minutes)</label>
+        <div class="form-group">
+          <label for="unit">Unit</label>
           <input
-            id="total_time_prep"
-            name="total_time_prep"
+            id="unit"
+            name="unit"
             class="form-control"
-            type="number"
-            min="1"
-            placeholder="Enter total preparation time"
+            type="text"
+            placeholder="e.g. g, cups, tbsp, pieces"
             required
           />
         </div>
 
         <div class="form-group full">
           <div class="form-actions">
-            <button type="submit" class="btn-primary">Save Recipe</button>
+            <button type="submit" class="btn-primary">Save Recipe Ingredient</button>
             <button type="reset" class="btn-secondary">Clear Form</button>
-            <a href="recipes-list.html" class="btn-secondary">Go Back</a>
+            <a id="goBackBtn" href="recipes-list.html" class="btn-secondary">Go Back</a>
           </div>
         </div>
       </form>
 
-      <div id="recipeMessage" class="message-box"></div>
-
-      <div class="note-box">
-        This form only stores the main recipe record:
-        <strong>recipe_id, name, type, servings, total_time_prep</strong>.
-        Ingredients and steps are added separately.
-      </div>
+      <div id="recipeIngredientMessage" class="message-box"></div>
     </section>
   </main>
 </div>
 
-<script type="module" src="../js/new-recipe.js"></script>
+<script type="module" src="../js/new-recipe-ingredient.js"></script>
 </body>
 </html>
