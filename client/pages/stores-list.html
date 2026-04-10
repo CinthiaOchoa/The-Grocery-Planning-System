@@ -12,54 +12,44 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Stores-list-only styles */
-
-    .store-name {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .store-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(22,94,110,0.10);
-      color: var(--teal);
-      font-size: 1.15rem;
-      flex-shrink: 0;
-    }
-
     .action-group {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .stores-empty-state {
-      min-height: 220px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 30px;
+    .toolbar .search-input {
+      flex: 1 1 320px;
+    }
+
+    .btn-link-action {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid #d9e2e8;
+      background: #fff;
+      color: #1f3b4d;
+      cursor: pointer;
+    }
+
+    .btn-link-action:hover {
+      opacity: 0.92;
+    }
+
+    .stores-note {
+      margin-top: 14px;
       color: var(--text-soft);
       line-height: 1.6;
-    }
-
-    @media (max-width: 1200px) {
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
@@ -96,7 +86,7 @@
       <header class="topbar">
         <div>
           <h2>Stores List</h2>
-          <p>Browse available stores, addresses, nearby options, and connect them to purchase history.</p>
+          <p>Browse stores and open purchase actions for each store.</p>
         </div>
       </header>
 
@@ -106,20 +96,17 @@
         </div>
 
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by store name, id, or address" />
-          <select class="filter-select">
-            <option>All Store Types</option>
-            <option>Grocery Store</option>
-            <option>Supermarket</option>
-            <option>Local Market</option>
-          </select>
-          <select class="filter-select">
-            <option>All Distance Types</option>
-            <option>Nearby</option>
-            <option>Saved</option>
-          </select>
-          <a href="add-purchase.html" class="btn-primary">+ Add Purchase</a>
+          <a href="new-store.html" class="btn-primary">+ Add Store</a>
+
+          <input
+            id="store-search"
+            class="search-input"
+            type="text"
+            placeholder="Search by store id, name, or address"
+          />
         </div>
+
+        <div id="stores-message" class="helper-text" style="margin-top: 14px;"></div>
 
         <div class="table-wrapper">
           <table>
@@ -131,65 +118,55 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="storesTableBody">
+
+            <tbody id="stores-table-body">
+              <!-- Example rows so you can test the buttons now -->
+              <tr>
+                <td>ST001</td>
+                <td>Walmart</td>
+                <td>123 Main St, Atlanta, GA</td>
+                <td>
+                  <div class="action-group">
+                    <a href="store-purchases.html?store_id=ST001" class="btn-link-action">View Purchases</a>
+                    <a href="add-purchase.html?store_id=ST001" class="btn-link-action">Add Purchase</a>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>ST002</td>
+                <td>Kroger</td>
+                <td>456 Peachtree Rd, Atlanta, GA</td>
+                <td>
+                  <div class="action-group">
+                    <a href="store-purchases.html?store_id=ST002" class="btn-link-action">View Purchases</a>
+                    <a href="add-purchase.html?store_id=ST002" class="btn-link-action">Add Purchase</a>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>ST003</td>
+                <td>Publix</td>
+                <td>789 Piedmont Ave, Atlanta, GA</td>
+                <td>
+                  <div class="action-group">
+                    <a href="store-purchases.html?store_id=ST003" class="btn-link-action">View Purchases</a>
+                    <a href="add-purchase.html?store_id=ST003" class="btn-link-action">Add Purchase</a>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
-
-          <div class="stores-empty-state">
-            <div>
-              <strong>No store data loaded yet.</strong><br />
-              This table is intentionally empty so it can later receive data from CSV files, Excel imports, backend routes, or MySQL queries.
-            </div>
-          </div>
         </div>
-      </section>
 
-      <section class="bottom-grid">
-        <article class="card">
-          <div class="card-header">
-            <h3>Add New Store</h3>
-          </div>
-
-          <form class="form-grid" id="storeForm">
-            <div class="form-group">
-              <label for="store_id">Store ID</label>
-              <input id="store_id" name="store_id" class="form-control" type="text" placeholder="Enter store id" data-field="store_id" />
-            </div>
-
-            <div class="form-group">
-              <label for="store_name">Store Name</label>
-              <input id="store_name" name="name" class="form-control" type="text" placeholder="Enter store name" data-field="name" />
-            </div>
-
-            <div class="form-group full">
-              <label for="address">Address</label>
-              <input id="address" name="address" class="form-control" type="text" placeholder="Enter store address" data-field="address" />
-            </div>
-
-            <div class="form-group full">
-              <button type="button" class="btn-primary">Save Store</button>
-            </div>
-          </form>
-
-          <p class="helper-text" style="margin-top: 14px;">
-            This form matches your <strong>store</strong> table: store_id, name, address.
-          </p>
-        </article>
-
-        <article class="card">
-          <div class="card-header">
-            <h3>Quick Links</h3>
-          </div>
-
-          <div class="quick-links">
-            <a class="quick-link" href="store-purchases.html">Open Store Purchases</a>
-            <a class="quick-link" href="add-purchase.html">Add Purchase Record</a>
-            <a class="quick-link" href="pantry-list.html">Compare With Pantry</a>
-            <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-          </div>
-        </article>
+        <p class="stores-note">
+          These example rows are only for testing the buttons. When your API is connected, real store data will replace them.
+        </p>
       </section>
     </main>
   </div>
+
+  <script type="module" src="../js/stores.js"></script>
 </body>
 </html>
