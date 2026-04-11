@@ -12,14 +12,16 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Profile-only styles */
-
     .page-grid {
+      display: grid;
       grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      align-items: start;
     }
 
     .hero-card {
       background: linear-gradient(135deg, rgba(4,79,95,0.96) 0%, rgba(22,94,110,0.95) 100%);
+      color: var(--white);
     }
 
     .avatar-large-wrap {
@@ -28,10 +30,16 @@
       margin: 20px 0 12px;
     }
 
-    .avatar-large {
+    .avatar-large,
+    .avatar-large-image {
       width: 180px;
       height: 180px;
       border-radius: 50%;
+      border: 6px solid rgba(255,255,255,0.22);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+    }
+
+    .avatar-large {
       background: linear-gradient(135deg, var(--red), var(--coral));
       display: flex;
       align-items: center;
@@ -39,8 +47,12 @@
       color: var(--white);
       font-size: 3rem;
       font-weight: 700;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
-      border: 6px solid rgba(255,255,255,0.22);
+    }
+
+    .avatar-large-image {
+      display: none;
+      object-fit: cover;
+      background: #fff;
     }
 
     .hero-note {
@@ -48,6 +60,7 @@
       color: rgba(255,255,255,0.88);
       font-size: 0.93rem;
       line-height: 1.5;
+      margin-bottom: 16px;
     }
 
     .info-grid {
@@ -74,34 +87,18 @@
       color: var(--text-dark);
       font-size: 0.98rem;
       line-height: 1.45;
+      word-break: break-word;
     }
 
-    .placeholder-text {
-      color: var(--text-soft);
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
     }
 
-    .stats-list {
-      display: grid;
-      gap: 14px;
-    }
-
-    .stat-card {
-      padding: 16px;
-      border-radius: 16px;
-      background: #fffdfa;
-      border: 1px solid #f0e2d2;
-    }
-
-    .stat-card strong {
-      display: block;
-      color: var(--deep-teal);
-      margin-bottom: 6px;
-    }
-
-    .stat-card span {
-      color: var(--text-soft);
-      line-height: 1.5;
-      font-size: 0.93rem;
+    .helper-text {
+      margin-top: 18px;
     }
 
     @media (max-width: 1150px) {
@@ -112,7 +109,7 @@
     }
   </style>
 </head>
-<body>
+<body data-page="profile">
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
@@ -133,72 +130,48 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      <div class="sidebar-footer">
-        <h3>Profile Overview</h3>
-        <p>This page is prepared to show student account details once connected to backend data.</p>
-        <a href="edit-profile.html">Edit Profile</a>
-      </div>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h2>Profile</h2>
+          <h2 id="profile-title">Profile</h2>
           <p>Review your account information, preferences, and connected student details in one place.</p>
         </div>
 
         <div class="profile-pill">
-          <div class="avatar-small">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
             <small>Logged in as</small>
-            <strong>Student User</strong>
+            <strong id="topbar-name">Student User</strong>
           </div>
         </div>
       </header>
+
+      <div id="profile-message"></div>
 
       <section class="page-grid">
         <div>
           <article class="card hero-card">
             <h3>Student Profile</h3>
-            <p>
-              This profile page is ready to display student information from your backend, MySQL database, or imported user records later.
-            </p>
+            <p>Your profile picture and account details are shown here.</p>
 
             <div class="avatar-large-wrap">
-              <div class="avatar-large">SU</div>
+              <div class="avatar-large" id="profile-avatar-fallback">SU</div>
+              <img
+                id="profile-preview-image"
+                class="avatar-large-image"
+                src=""
+                alt="Profile picture"
+              />
             </div>
 
-            <div class="hero-note">
-              Profile picture placeholder area for future image URL or uploaded student photo.
+            <div class="hero-note" id="profile-hero-note">
+              Your picture will appear here after you upload or save an image URL.
             </div>
 
             <div class="button-row">
-              <a href="edit-profile.html" class="btn-secondary">Edit Profile</a>
-              <a href="settings.html" class="btn-secondary">Open Settings</a>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Profile Activity Overview</h3>
-            </div>
-
-            <div class="stats-list">
-              <div class="stat-card">
-                <strong>Pantry Connection</strong>
-                <span>This section can later show how many pantry records belong to the student account.</span>
-              </div>
-
-              <div class="stat-card">
-                <strong>Purchase Activity</strong>
-                <span>This section can later show purchase count and total spending history.</span>
-              </div>
-
-              <div class="stat-card">
-                <strong>Recipe Usage</strong>
-                <span>This section can later summarize saved or matched recipes for this student.</span>
-              </div>
+              <a href="edit-profile.html" class="btn-primary" id="edit-profile-link">Edit Profile</a>
             </div>
           </article>
         </div>
@@ -212,69 +185,56 @@
             <div class="info-grid">
               <div class="info-item">
                 <strong>Student ID</strong>
-                <span class="placeholder-text">Will load from student_id</span>
+                <span id="view-student-id">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Name</strong>
-                <span class="placeholder-text">Will load from name</span>
+                <span id="view-name">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Email</strong>
-                <span class="placeholder-text">Will load from email</span>
+                <span id="view-email">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Password</strong>
-                <span class="placeholder-text">Protected field / not shown directly</span>
+                <span id="view-password">••••••••</span>
               </div>
 
               <div class="info-item">
                 <strong>Budget Per Week</strong>
-                <span class="placeholder-text">Will load from budget_per_week</span>
+                <span id="view-budget">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Zip Code</strong>
-                <span class="placeholder-text">Will load from zip_code</span>
+                <span id="view-zip">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Profile Picture URL</strong>
-                <span class="placeholder-text">Will load from profile_picture_url</span>
+                <span id="view-picture-url">-</span>
               </div>
 
               <div class="info-item">
                 <strong>Theme Preference</strong>
-                <span class="placeholder-text">Will load from theme_preference</span>
+                <span id="view-theme">-</span>
               </div>
             </div>
 
             <p class="helper-text">
-              This page maps directly to your <strong>student</strong> table: student_id, name, email, password, budget_per_week, zip_code, profile_picture_url, theme_preference.
+              This page maps directly to your <strong>student</strong> table:
+              student_id, name, email, password, budget_per_week, zip_code,
+              profile_picture_url, theme_preference.
             </p>
-
-            <div class="button-row">
-              <a href="edit-profile.html" class="btn-primary">Edit Account Details</a>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="edit-profile.html">Go to Edit Profile</a>
-              <a class="quick-link" href="settings.html">Open Settings</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-              <a class="quick-link" href="pantry-list.html">Open Pantry List</a>
-            </div>
           </article>
         </div>
       </section>
     </main>
   </div>
+
+  <script type="module" src="../js/profile.js"></script>
 </body>
 </html>

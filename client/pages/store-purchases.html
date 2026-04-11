@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Store-purchases-only styles */
-
     .bottom-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -59,19 +57,13 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      <div class="sidebar-footer">
-        <h3>Purchase History</h3>
-        <p>Later this page can load purchase records from CSV, Excel, backend endpoints, or MySQL queries.</p>
-        <a href="add-purchase.html">Add Purchase</a>
-      </div>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
         <div>
           <h2>Store Purchases</h2>
-          <p>View purchase history by store and prepare this page for future CSV, Excel, or database integration.</p>
+          <p id="storePurchasesSubtitle">View purchase history by store and prepare this page for future CSV, Excel, or database integration.</p>
         </div>
 
         <div class="profile-pill">
@@ -83,46 +75,20 @@
         </div>
       </header>
 
-      <section class="summary-grid">
-        <article class="summary-card">
-          <small>Total Purchase Records</small>
-          <h3>--</h3>
-          <p>This value can be loaded dynamically later.</p>
-        </article>
-
-        <article class="summary-card">
-          <small>Stores With Purchases</small>
-          <h3>--</h3>
-          <p>Connected once purchase data is available.</p>
-        </article>
-
-        <article class="summary-card">
-          <small>Most Recent Purchase</small>
-          <h3>--</h3>
-          <p>This section is reserved for future data connection.</p>
-        </article>
-
-        <article class="summary-card">
-          <small>Total Spending</small>
-          <h3>--</h3>
-          <p>Can later sum prices from purchase records.</p>
-        </article>
-      </section>
-
       <section class="card">
         <div class="card-header">
           <h3>Search Purchase History</h3>
         </div>
 
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by store, ingredient, or student id" />
-          <select class="filter-select">
-            <option>All Stores</option>
-          </select>
+          <input id="purchase-search" class="search-input" type="text" placeholder="Search by store, ingredient, or student id" />
           <select class="filter-select">
             <option>All Dates</option>
           </select>
-          <a href="add-purchase.html" class="btn-primary">+ Add Purchase</a>
+          <a href="add-purchase.html" id="addPurchaseBtn" class="btn-primary">+ Add Purchase</a>
+          <button onclick="window.location.href='stores-list.html'" class="btn-secondary">
+            Back
+          </button>
         </div>
 
         <div class="table-wrapper">
@@ -138,11 +104,10 @@
                 <th>Unit</th>
               </tr>
             </thead>
-            <tbody id="storePurchasesTableBody">
-            </tbody>
+            <tbody id="storePurchasesTableBody"></tbody>
           </table>
 
-          <div class="purchase-empty-state">
+          <div class="purchase-empty-state" id="purchaseEmptyState">
             <div>
               <strong>No purchase data added yet.</strong><br />
               This table is intentionally empty so you can connect it later to CSV, Excel, backend routes, or MySQL data.
@@ -150,58 +115,85 @@
           </div>
         </div>
       </section>
-
-      <section class="bottom-grid">
-        <article class="card">
-          <div class="card-header">
-            <h3>Purchase Filters Layout</h3>
-          </div>
-
-          <form class="form-grid" id="purchaseFilterForm">
-            <div class="form-group">
-              <label for="filter_store_id">Store ID</label>
-              <input id="filter_store_id" name="filter_store_id" class="form-control" type="text" placeholder="Filter by store id" />
-            </div>
-
-            <div class="form-group">
-              <label for="filter_ingredient_id">Ingredient ID</label>
-              <input id="filter_ingredient_id" name="filter_ingredient_id" class="form-control" type="text" placeholder="Filter by ingredient id" />
-            </div>
-
-            <div class="form-group">
-              <label for="filter_student_id">Student ID</label>
-              <input id="filter_student_id" name="filter_student_id" class="form-control" type="text" placeholder="Filter by student id" />
-            </div>
-
-            <div class="form-group">
-              <label for="filter_date">Date</label>
-              <input id="filter_date" name="filter_date" class="form-control" type="date" />
-            </div>
-
-            <div class="form-group full">
-              <button type="button" class="btn-secondary">Apply Filter Layout</button>
-            </div>
-          </form>
-
-          <p class="helper-text" style="margin-top: 14px;">
-            This page is structured for your <strong>purchased_ingredient</strong> table: store_id, ingredient_id, student_id, date, price, quantity, unit.
-          </p>
-        </article>
-
-        <article class="card">
-          <div class="card-header">
-            <h3>Quick Links</h3>
-          </div>
-
-          <div class="quick-links">
-            <a class="quick-link" href="add-purchase.html">Go to Add Purchase</a>
-            <a class="quick-link" href="stores-list.html">Back to Stores List</a>
-            <a class="quick-link" href="pantry-list.html">Open Pantry</a>
-            <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-          </div>
-        </article>
-      </section>
     </main>
   </div>
+
+  <script>
+    const PURCHASES_STORAGE_KEY = "purchased_ingredients";
+
+    const params = new URLSearchParams(window.location.search);
+    const selectedStoreId = params.get("store_id") || "";
+
+    const addPurchaseBtn = document.getElementById("addPurchaseBtn");
+    const subtitle = document.getElementById("storePurchasesSubtitle");
+    const tableBody = document.getElementById("storePurchasesTableBody");
+    const emptyState = document.getElementById("purchaseEmptyState");
+    const searchInput = document.getElementById("purchase-search");
+
+    if (selectedStoreId) {
+      addPurchaseBtn.href = `add-purchase.html?store_id=${encodeURIComponent(selectedStoreId)}`;
+      subtitle.textContent = `Viewing purchase history for Store ID: ${selectedStoreId}`;
+    } else {
+      addPurchaseBtn.href = "add-purchase.html";
+    }
+
+    function getSavedPurchases() {
+      const raw = localStorage.getItem(PURCHASES_STORAGE_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function renderPurchases() {
+      const allPurchases = getSavedPurchases();
+
+      let filteredPurchases = selectedStoreId
+        ? allPurchases.filter(purchase => purchase.store_id === selectedStoreId)
+        : allPurchases;
+
+      const searchValue = searchInput.value.trim().toLowerCase();
+
+      if (searchValue) {
+        filteredPurchases = filteredPurchases.filter(purchase =>
+          String(purchase.store_id).toLowerCase().includes(searchValue) ||
+          String(purchase.ingredient_id).toLowerCase().includes(searchValue) ||
+          String(purchase.student_id).toLowerCase().includes(searchValue) ||
+          String(purchase.unit).toLowerCase().includes(searchValue) ||
+          String(purchase.date).toLowerCase().includes(searchValue)
+        );
+      }
+
+      tableBody.innerHTML = "";
+
+      if (filteredPurchases.length === 0) {
+        emptyState.style.display = "flex";
+        return;
+      }
+
+      emptyState.style.display = "none";
+
+      filteredPurchases.forEach(purchase => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${purchase.store_id}</td>
+          <td>${purchase.ingredient_id}</td>
+          <td>${purchase.student_id}</td>
+          <td>${purchase.date}</td>
+          <td>$${Number(purchase.price).toFixed(2)}</td>
+          <td>${purchase.quantity}</td>
+          <td>${purchase.unit}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    searchInput.addEventListener("input", renderPurchases);
+
+    renderPurchases();
+  </script>
 </body>
 </html>

@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-
     .page-grid {
       grid-template-columns: 1.1fr 0.9fr;
     }
@@ -101,6 +100,12 @@
       line-height: 1.45;
     }
 
+    .helper-message {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      color: var(--text-soft);
+    }
+
     @media (max-width: 1150px) {
       .page-grid {
         grid-template-columns: 1fr;
@@ -135,7 +140,7 @@
       <header class="topbar">
         <div>
           <h2>Add Purchase</h2>
-          <p>Prepare a purchase record layout that can later receive data from CSV files, API routes, or database queries.</p>
+          <p id="purchasePageSubtitle">Add a new purchase record for the selected store.</p>
         </div>
 
         <div class="profile-pill">
@@ -147,128 +152,159 @@
         </div>
       </header>
 
-      <section class="page-grid">
-        <div>
-          <article class="card hero-box">
-            <h3>Create a Purchase Record</h3>
-            <p>
-              This front-end form is ready to connect later to your backend and save records into the
-              <strong>purchased_ingredient</strong> table.
-            </p>
-
-            <div class="info-list">
-              <div class="info-item">
-                <strong>Store Link</strong>
-                <span>Each purchase should connect to a valid <code>store_id</code>.</span>
-              </div>
-              <div class="info-item">
-                <strong>Ingredient Link</strong>
-                <span>Each purchase should connect to a valid <code>ingredient_id</code>.</span>
-              </div>
-              <div class="info-item">
-                <strong>Student Link</strong>
-                <span>Each purchase should connect to the active <code>student_id</code>.</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Purchase Form</h3>
-            </div>
-
-            <form class="form-grid" id="purchaseForm">
-              <div class="form-group">
-                <label for="store_id">Store ID</label>
-                <input id="store_id" name="store_id" class="form-control" type="text" placeholder="Enter store id" data-field="store_id" />
-              </div>
-
-              <div class="form-group">
-                <label for="ingredient_id">Ingredient ID</label>
-                <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" data-field="ingredient_id" />
-              </div>
-
-              <div class="form-group">
-                <label for="student_id">Student ID</label>
-                <input id="student_id" name="student_id" class="form-control" type="text" placeholder="Enter student id" data-field="student_id" />
-              </div>
-
-              <div class="form-group">
-                <label for="date">Date</label>
-                <input id="date" name="date" class="form-control" type="date" data-field="date" />
-              </div>
-
-              <div class="form-group">
-                <label for="price">Price</label>
-                <input id="price" name="price" class="form-control" type="number" step="0.01" placeholder="Enter price" data-field="price" />
-              </div>
-
-              <div class="form-group">
-                <label for="quantity">Quantity</label>
-                <input id="quantity" name="quantity" class="form-control" type="number" step="0.01" placeholder="Enter quantity" data-field="quantity" />
-              </div>
-
-              <div class="form-group full">
-                <label for="unit">Unit</label>
-                <input id="unit" name="unit" class="form-control" type="text" placeholder="lb, bag, bottle, box, cup..." data-field="unit" />
-              </div>
-
-              <div class="form-group full">
-                <div class="button-row">
-                  <button type="button" class="btn-primary">Save Purchase</button>
-                  <button type="reset" class="btn-secondary">Clear Form</button>
-                </div>
-              </div>
-            </form>
-          </article>
+      <article class="card">
+        <div class="card-header">
+          <h3>Purchase Form</h3>
         </div>
 
-        <div>
-          <article class="card">
-            <div class="card-header">
-              <h3>Future Data Preview Area</h3>
+        <form class="form-grid" id="purchaseForm">
+          <div class="form-group">
+            <label for="store_id">Store ID</label>
+            <input id="store_id" name="store_id" class="form-control" type="text" placeholder="Enter store id" />
+          </div>
+
+          <div class="form-group">
+            <label for="ingredient_id">Ingredient ID</label>
+            <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" />
+          </div>
+
+          <div class="form-group">
+            <label for="student_id">Student ID</label>
+            <input id="student_id" name="student_id" class="form-control" type="text" placeholder="Enter student id" />
+          </div>
+
+          <div class="form-group">
+            <label for="date">Date</label>
+            <input id="date" name="date" class="form-control" type="date" />
+          </div>
+
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input id="price" name="price" class="form-control" type="number" step="0.01" placeholder="Enter price" />
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" class="form-control" type="number" step="0.01" placeholder="Enter quantity" />
+          </div>
+
+          <div class="form-group full">
+            <label for="unit">Unit</label>
+            <input id="unit" name="unit" class="form-control" type="text" placeholder="lb, bag, bottle, box, cup..." />
+          </div>
+
+          <div class="form-group full">
+            <div class="button-row">
+              <button type="submit" class="btn-primary">Save Purchase</button>
+              <button type="reset" class="btn-secondary">Clear Form</button>
+              <button type="button" id="goBackBtn" class="btn-secondary">Go Back</button>
             </div>
+          </div>
+        </form>
 
-            <div class="preview-panel" id="purchasePreview">
-              <div>
-                <strong>No live preview yet.</strong><br />
-                Later this area can show imported CSV values, selected store information, ingredient details, or a confirmation preview before saving.
-              </div>
-            </div>
-
-            <div class="future-preview-grid">
-              <div class="future-preview-item">
-                <strong>CSV/Excel Ready</strong>
-                <span>Map CSV columns like <code>store_id</code>, <code>ingredient_id</code>, <code>price</code>, and <code>quantity</code> into the form.</span>
-              </div>
-
-              <div class="future-preview-item">
-                <strong>API Ready</strong>
-                <span>This page can later call backend routes to populate dropdowns, validate IDs, and submit new purchase records.</span>
-              </div>
-
-              <div class="future-preview-item">
-                <strong>Preview Ready</strong>
-                <span>You can later render selected store name, ingredient name, and price summary here before save.</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="store-purchases.html">Open Store Purchases</a>
-              <a class="quick-link" href="stores-list.html">Back to Stores List</a>
-              <a class="quick-link" href="ingredients-dataset.html">Browse Ingredients</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-            </div>
-          </article>
-        </div>
-      </section>
+        <div id="purchaseMessage" class="helper-message"></div>
+      </article>
     </main>
   </div>
+
+  <script>
+    const PURCHASES_STORAGE_KEY = "purchased_ingredients";
+
+    const form = document.getElementById("purchaseForm");
+    const storeIdInput = document.getElementById("store_id");
+    const ingredientIdInput = document.getElementById("ingredient_id");
+    const studentIdInput = document.getElementById("student_id");
+    const dateInput = document.getElementById("date");
+    const priceInput = document.getElementById("price");
+    const quantityInput = document.getElementById("quantity");
+    const unitInput = document.getElementById("unit");
+    const messageBox = document.getElementById("purchaseMessage");
+    const goBackBtn = document.getElementById("goBackBtn");
+    const subtitle = document.getElementById("purchasePageSubtitle");
+
+    const params = new URLSearchParams(window.location.search);
+    const selectedStoreId = params.get("store_id") || "";
+
+    if (selectedStoreId) {
+      storeIdInput.value = selectedStoreId;
+      storeIdInput.readOnly = true;
+      subtitle.textContent = `Add a new purchase for Store ID: ${selectedStoreId}`;
+    }
+
+    function getSavedPurchases() {
+      const raw = localStorage.getItem(PURCHASES_STORAGE_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function savePurchases(purchases) {
+      localStorage.setItem(PURCHASES_STORAGE_KEY, JSON.stringify(purchases));
+    }
+
+    function clearFormKeepStore() {
+      form.reset();
+      messageBox.textContent = "";
+      if (selectedStoreId) {
+        storeIdInput.value = selectedStoreId;
+        storeIdInput.readOnly = true;
+      }
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const purchaseData = {
+        store_id: storeIdInput.value.trim(),
+        ingredient_id: ingredientIdInput.value.trim(),
+        student_id: studentIdInput.value.trim(),
+        date: dateInput.value,
+        price: priceInput.value,
+        quantity: quantityInput.value,
+        unit: unitInput.value.trim()
+      };
+
+      if (
+        !purchaseData.store_id ||
+        !purchaseData.ingredient_id ||
+        !purchaseData.student_id ||
+        !purchaseData.date ||
+        !purchaseData.price ||
+        !purchaseData.quantity ||
+        !purchaseData.unit
+      ) {
+        messageBox.textContent = "Please complete all fields before saving.";
+        return;
+      }
+
+      const savedPurchases = getSavedPurchases();
+      savedPurchases.push(purchaseData);
+      savePurchases(savedPurchases);
+
+      messageBox.textContent = "Purchase saved successfully.";
+
+      setTimeout(() => {
+        window.location.href = `store-purchases.html?store_id=${encodeURIComponent(purchaseData.store_id)}`;
+      }, 500);
+    });
+
+    form.addEventListener("reset", function () {
+      setTimeout(() => {
+        clearFormKeepStore();
+      }, 0);
+    });
+
+    goBackBtn.addEventListener("click", function () {
+      if (selectedStoreId) {
+        window.location.href = `store-purchases.html?store_id=${encodeURIComponent(selectedStoreId)}`;
+      } else {
+        window.location.href = "store-purchases.html";
+      }
+    });
+  </script>
 </body>
 </html>

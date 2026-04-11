@@ -12,14 +12,16 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Edit-profile-only styles */
-
     .page-grid {
+      display: grid;
       grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: start;
     }
 
     .hero-card {
       background: linear-gradient(135deg, rgba(137,50,42,0.96) 0%, rgba(173,82,71,0.95) 100%);
+      color: var(--white);
     }
 
     .avatar-large-wrap {
@@ -28,10 +30,16 @@
       margin: 20px 0 14px;
     }
 
-    .avatar-large {
+    .avatar-large,
+    .avatar-large-image {
       width: 170px;
       height: 170px;
       border-radius: 50%;
+      border: 6px solid rgba(255,255,255,0.22);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+    }
+
+    .avatar-large {
       background: linear-gradient(135deg, var(--deep-teal), var(--teal));
       display: flex;
       align-items: center;
@@ -39,8 +47,12 @@
       color: var(--white);
       font-size: 2.8rem;
       font-weight: 700;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
-      border: 6px solid rgba(255,255,255,0.22);
+    }
+
+    .avatar-large-image {
+      display: none;
+      object-fit: cover;
+      background: #fff;
     }
 
     .hero-note {
@@ -73,6 +85,25 @@
       color: rgba(255,255,255,0.86);
       font-size: 0.92rem;
       line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .image-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .hidden-file-input {
+      display: none;
     }
 
     @media (max-width: 1150px) {
@@ -82,7 +113,7 @@
     }
   </style>
 </head>
-<body>
+<body data-page="edit-profile">
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
@@ -103,86 +134,37 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      <div class="sidebar-footer">
-        <h3>Edit Account</h3>
-        <p>This page is ready for future profile updates from backend records and database fields.</p>
-        <a href="profile.html">Back to Profile</a>
-      </div>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
         <div>
           <h2>Edit Profile</h2>
-          <p>Update student account details, preferences, and profile information using this front-end form layout.</p>
+          <p>Update student account details, preferences, and profile information.</p>
         </div>
 
         <div class="profile-pill">
-          <div class="avatar-small">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
             <small>Editing profile for</small>
-            <strong>Student User</strong>
+            <strong id="topbar-name">Student User</strong>
           </div>
         </div>
       </header>
 
+      <div id="profile-message"></div>
+
       <section class="page-grid">
-        <div>
-          <article class="card hero-card">
-            <h3>Profile Update Area</h3>
-            <p>
-              This section is prepared for profile editing. Later it can display the current user picture, uploaded image preview, and saved preferences from the database.
-            </p>
-
-            <div class="avatar-large-wrap">
-              <div class="avatar-large">SU</div>
-            </div>
-
-            <div class="hero-note">
-              Future profile image preview area for uploaded photo or profile_picture_url.
-            </div>
-
-            <div class="preview-list">
-              <div class="preview-item">
-                <strong>Image Support</strong>
-                <span>Can later connect to file upload or image URL preview.</span>
-              </div>
-              <div class="preview-item">
-                <strong>Theme Preference</strong>
-                <span>Can later reflect current saved light or dark preference.</span>
-              </div>
-              <div class="preview-item">
-                <strong>Secure Password Update</strong>
-                <span>Password fields are ready for future secure backend handling.</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="profile.html">Back to Profile</a>
-              <a class="quick-link" href="settings.html">Open Settings</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-              <a class="quick-link" href="pantry-list.html">Open Pantry List</a>
-            </div>
-          </article>
-        </div>
-
         <div>
           <article class="card">
             <div class="card-header">
               <h3>Edit Student Details</h3>
             </div>
 
-            <form class="form-grid">
+            <form id="profile-form" class="form-grid">
               <div class="form-group">
                 <label for="student_id">Student ID</label>
-                <input id="student_id" name="student_id" class="form-control" type="text" placeholder="Enter student id" />
+                <input id="student_id" name="student_id" class="form-control" type="text" readonly />
               </div>
 
               <div class="form-group">
@@ -197,7 +179,7 @@
 
               <div class="form-group">
                 <label for="budget_per_week">Budget Per Week</label>
-                <input id="budget_per_week" name="budget_per_week" class="form-control" type="number" step="0.01" placeholder="Enter weekly budget" />
+                <input id="budget_per_week" name="budget_per_week" class="form-control" type="number" step="0.01" min="0" placeholder="Enter weekly budget" />
               </div>
 
               <div class="form-group">
@@ -207,7 +189,24 @@
 
               <div class="form-group full">
                 <label for="profile_picture_url">Profile Picture URL</label>
-                <input id="profile_picture_url" name="profile_picture_url" class="form-control" type="text" placeholder="Enter profile image URL" />
+                <input id="profile_picture_url" name="profile_picture_url" class="form-control" type="text" placeholder="Paste an image URL if you want" />
+              </div>
+
+              <div class="form-group full">
+                <label>Profile Picture</label>
+                <div class="image-actions">
+                  <button type="button" class="btn-secondary" id="change-image-btn">Add / Change Image</button>
+                  <button type="button" class="btn-secondary" id="remove-image-btn">Remove Image</button>
+                </div>
+                <input
+                  id="profile-image-file"
+                  class="hidden-file-input"
+                  type="file"
+                  accept="image/*"
+                />
+                <p class="helper-text">
+                  On phone or tablet, this opens your device image picker. On desktop, it opens your files/photos picker.
+                </p>
               </div>
 
               <div class="form-group">
@@ -231,26 +230,58 @@
 
               <div class="form-group full">
                 <div class="button-row">
-                  <button type="button" class="btn-primary">Save Profile Changes</button>
-                  <button type="reset" class="btn-secondary">Clear Form</button>
+                  <button type="submit" class="btn-primary" id="profile-submit-btn">Save Profile Changes</button>
+                  <button type="reset" class="btn-secondary" id="profile-clear-btn">Clear Form</button>
+                  <a href="profile.html" class="btn-secondary">Go Back</a>
                 </div>
               </div>
             </form>
 
             <p class="helper-text">
-              This form matches your <strong>student</strong> table fields: student_id, name, email, password, budget_per_week, zip_code, profile_picture_url, theme_preference.
+              This form matches your <strong>student</strong> table fields:
+              student_id, name, email, password, budget_per_week, zip_code,
+              profile_picture_url, theme_preference.
             </p>
           </article>
+        </div>
 
-          <article class="card">
-            <div class="card-header">
-              <h3>Future Validation Area</h3>
+        <div>
+          <article class="card hero-card">
+            <h3>Profile Preview</h3>
+
+            <div class="avatar-large-wrap">
+              <div class="avatar-large" id="profile-avatar-fallback">SU</div>
+              <img
+                id="profile-preview-image"
+                class="avatar-large-image"
+                src=""
+                alt="Profile preview"
+              />
             </div>
 
-            <div class="placeholder-box">
-              <div>
-                <strong>No validation preview yet.</strong><br />
-                Later this section can show password match messages, email validation, upload status, or backend save confirmation.
+            <div class="hero-note" id="profile-hero-note">
+              Your selected image preview will show here before saving.
+            </div>
+
+            <div class="preview-list">
+              <div class="preview-item">
+                <strong>Name</strong>
+                <span id="preview-name">-</span>
+              </div>
+
+              <div class="preview-item">
+                <strong>Email</strong>
+                <span id="preview-email">-</span>
+              </div>
+
+              <div class="preview-item">
+                <strong>Budget Per Week</strong>
+                <span id="preview-budget">-</span>
+              </div>
+
+              <div class="preview-item">
+                <strong>Theme Preference</strong>
+                <span id="preview-theme">-</span>
               </div>
             </div>
           </article>
@@ -258,5 +289,7 @@
       </section>
     </main>
   </div>
+
+  <script type="module" src="../js/profile.js"></script>
 </body>
 </html>
