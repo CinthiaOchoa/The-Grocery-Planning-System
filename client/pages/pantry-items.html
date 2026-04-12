@@ -118,6 +118,10 @@
         : "new-pantry-item.html";
     }
   </script>
+  <script>
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
   <script type="module" src="../js/pantry-items.js"></script>
 </body>
 </html>

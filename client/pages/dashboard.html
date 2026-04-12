@@ -268,12 +268,6 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      <div class="sidebar-footer">
-        <h3>Weekly Goal</h3>
-        <p>Stay inside your meal budget and use ingredients before they expire.</p>
-        <a href="pantry-list.html">Check Pantry</a>
-      </div>
     </aside>
 
     <main class="main-content">
@@ -480,5 +474,9 @@
       </section>
     </main>
   </div>
+  <script>
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
 </body>
 </html>

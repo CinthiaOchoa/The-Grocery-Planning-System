@@ -179,3 +179,32 @@
       padding: 16px;
     }
   }
+  body[data-theme="dark"] {
+    background: #1b1b1b;
+    color: #f4f4f4;
+  }
+  
+  body[data-theme="dark"] .main-content,
+  body[data-theme="dark"] .card,
+  body[data-theme="dark"] .setting-box {
+    background: #2a2a2a;
+    color: #f4f4f4;
+    border-color: #444;
+  }
+  
+  body[data-theme="dark"] .nav-link {
+    color: #f4f4f4;
+  }
+  
+  body[data-theme="dark"] .sidebar {
+    background: #202020;
+  }
+  
+  body[data-theme="dark"] .topbar {
+    background: #2a2a2a;
+  }
+  
+  body[data-theme="dark"] .btn-primary {
+    background: #EDC385;
+    color: #222;
+  }

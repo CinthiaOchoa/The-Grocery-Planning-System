@@ -306,5 +306,9 @@
       }
     });
   </script>
+  <script>
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
 </body>
 </html>

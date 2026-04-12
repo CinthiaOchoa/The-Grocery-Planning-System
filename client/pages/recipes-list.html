@@ -242,8 +242,11 @@
       <strong>No recipes loaded yet.</strong><br>
       This page is ready to receive data from CSV files or backend.
     </div>
-
   </main>
 </div>
+<script>
+  const savedTheme = localStorage.getItem("themePreference") || "light";
+  document.body.dataset.theme = savedTheme;
+</script>
 </body>
 </html>

@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-    /* Settings-only styles */
-
     .page-grid {
       display: grid;
       grid-template-columns: 1fr 0.9fr;
@@ -43,31 +41,6 @@
       z-index: 1;
     }
 
-    .option-list {
-      display: grid;
-      gap: 16px;
-      margin-top: 18px;
-    }
-
-    .option-item {
-      padding: 16px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .option-item strong {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--sand);
-    }
-
-    .option-item span {
-      color: rgba(255,255,255,0.88);
-      font-size: 0.93rem;
-      line-height: 1.45;
-    }
-
     .settings-list {
       display: grid;
       gap: 18px;
@@ -93,27 +66,112 @@
       margin-bottom: 14px;
     }
 
-    .palette-row {
+    .toggle-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 8px;
     }
 
-    .color-swatch {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 3px solid var(--white);
-      box-shadow: var(--shadow-sm);
+    .fake-toggle {
+      border: 1px solid #d8c5b3;
+      background: #fff;
+      color: #333;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-weight: 600;
     }
 
-    .sw1 { background: #044F5F; }
-    .sw2 { background: #165E6E; }
-    .sw3 { background: #89322A; }
-    .sw4 { background: #AD5247; }
-    .sw5 { background: #DF7B5D; }
-    .sw6 { background: #EDC385; }
+    .fake-toggle:hover {
+      transform: translateY(-1px);
+    }
+
+    .fake-toggle.active {
+      background: #165E6E;
+      color: white;
+      border-color: #165E6E;
+    }
+
+    .danger-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: #89322A;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: 0.2s ease;
+    }
+
+    .danger-btn:hover {
+      opacity: 0.92;
+    }
+
+    .helper-text {
+      margin-top: 18px;
+      color: var(--text-soft);
+      font-size: 0.92rem;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    .message.success {
+      display: block;
+      background: #e8f7ed;
+      color: #1d6b39;
+      border: 1px solid #b8e0c4;
+    }
+
+    .message.error {
+      display: block;
+      background: #fdeceb;
+      color: #8a2d23;
+      border: 1px solid #efc0bb;
+    }
+
+    .message.info {
+      display: block;
+      background: #eef6fb;
+      color: #1d567a;
+      border: 1px solid #c8dfef;
+    }
+
+    body[data-theme="dark"] {
+      background: #1b1b1b;
+      color: #f4f4f4;
+    }
+
+    body[data-theme="dark"] .main-content,
+    body[data-theme="dark"] .card,
+    body[data-theme="dark"] .setting-box {
+      background: #2a2a2a;
+      color: #f4f4f4;
+      border-color: #444;
+    }
+
+    body[data-theme="dark"] .setting-box p,
+    body[data-theme="dark"] .helper-text {
+      color: #d6d6d6;
+    }
+
+    body[data-theme="dark"] .fake-toggle {
+      background: #333;
+      color: #f4f4f4;
+      border-color: #555;
+    }
+
+    body[data-theme="dark"] .fake-toggle.active {
+      background: #EDC385;
+      color: #222;
+      border-color: #EDC385;
+    }
 
     @media (max-width: 1150px) {
       .page-grid {
@@ -143,19 +201,13 @@
           <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
-
-      <div class="sidebar-footer">
-        <h3>App Preferences</h3>
-        <p>This page is prepared for future account settings, theme preference updates, and confirmation actions.</p>
-        <a href="profile.html">Back to Profile</a>
-      </div>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h2>Settings</h2>
-          <p>Manage future preferences, visual theme settings, account actions, and system-level options.</p>
+          <h2 id="settings-title">Settings</h2>
+          <p>Manage visual theme settings and future account options.</p>
         </div>
 
         <div class="profile-pill">
@@ -169,122 +221,63 @@
 
       <section class="page-grid">
         <div>
-          <article class="card hero-card">
-            <h3>Preference Settings</h3>
-            <p>
-              This page is ready for future setting controls connected to the student account and theme_preference field from your database.
-            </p>
-
-            <div class="option-list">
-              <div class="option-item">
-                <strong>Theme Control</strong>
-                <span>Later this can save light or dark mode preferences to the database.</span>
-              </div>
-              <div class="option-item">
-                <strong>Account Actions</strong>
-                <span>Delete account and sign-out actions can later be connected to backend confirmation flows.</span>
-              </div>
-              <div class="option-item">
-                <strong>Visual System</strong>
-                <span>The palette below matches the colors you selected for the full website design.</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Color Palette</h3>
-            </div>
-
-            <div class="palette-row">
-              <div class="color-swatch sw1"></div>
-              <div class="color-swatch sw2"></div>
-              <div class="color-swatch sw3"></div>
-              <div class="color-swatch sw4"></div>
-              <div class="color-swatch sw5"></div>
-              <div class="color-swatch sw6"></div>
-            </div>
-
-            <p class="helper-text">
-              These swatches represent the active visual identity used across the website.
-            </p>
-          </article>
-        </div>
-
-        <div>
           <article class="card">
             <div class="card-header">
               <h3>Setting Options</h3>
             </div>
 
-            <div class="settings-list">
-              <div class="setting-box">
-                <h4>Theme Preference</h4>
-                <p>Choose how the website should look once theme saving is connected to your backend.</p>
-                <div class="toggle-row">
-                  <button class="fake-toggle active" type="button">Light Mode</button>
-                  <button class="fake-toggle" type="button">Dark Mode</button>
+            <form id="settings-form">
+              <div class="settings-list">
+                <div class="setting-box">
+                  <h4>Theme Preference</h4>
+                  <p>Choose how the website should look. This part works on the frontend.</p>
+
+                  <input type="hidden" id="themePreference" name="themePreference" value="light" />
+
+                  <div class="toggle-row">
+                    <button id="lightModeBtn" class="fake-toggle active" type="button" data-theme="light">
+                      Light Mode
+                    </button>
+                    <button id="darkModeBtn" class="fake-toggle" type="button" data-theme="dark">
+                      Dark Mode
+                    </button>
+                  </div>
+
+                  <p class="helper-text" id="theme-preview-text">Selected theme: light</p>
+                </div>
+
+                <div class="setting-box">
+                  <h4>Delete Account</h4>
+                  <p>This button is only a placeholder for now. Real delete account logic should be done in the backend.</p>
+                  <div class="toggle-row">
+                    <a class="danger-btn" href="signout-confirm.html">Delete Account Flow</a>
+                  </div>
+                </div>
+
+                <div class="setting-box">
+                  <h4>Sign Out</h4>
+                  <p>This can stay as frontend navigation for now.</p>
+                  <div class="toggle-row">
+                    <a class="danger-btn" href="signout-confirm.html">Open Sign Out Confirmation</a>
+                  </div>
                 </div>
               </div>
 
-              <div class="setting-box">
-                <h4>Save Preference</h4>
-                <p>This button area is ready for future setting updates such as theme_preference changes.</p>
-                <div class="toggle-row">
-                  <button class="action-btn" type="button">Save Settings</button>
-                </div>
+              <div style="margin-top: 20px;">
+                <button type="submit" class="btn-primary">Save Settings</button>
               </div>
+            </form>
 
-              <div class="setting-box">
-                <h4>Delete Account</h4>
-                <p>This area can later trigger a confirmation modal and backend account deletion process.</p>
-                <div class="toggle-row">
-                  <a class="danger-btn" href="signout-confirm.html">Delete Account Flow</a>
-                </div>
-              </div>
-
-              <div class="setting-box">
-                <h4>Sign Out</h4>
-                <p>This area can later connect to a real sign-out action or confirmation screen.</p>
-                <div class="toggle-row">
-                  <a class="danger-btn" href="signout-confirm.html">Open Sign Out Confirmation</a>
-                </div>
-              </div>
-            </div>
-
-            <p class="helper-text">
-              This page is mainly prepared for future use with <strong>theme_preference</strong> and account-level actions.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Future Status Area</h3>
-            </div>
-
-            <div class="placeholder-box">
-              <div>
-                <strong>No live settings status yet.</strong><br />
-                Later this section can show success messages, saved theme state, delete warnings, or backend confirmation results.
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-header">
-              <h3>Quick Links</h3>
-            </div>
-
-            <div class="quick-links">
-              <a class="quick-link" href="profile.html">Back to Profile</a>
-              <a class="quick-link" href="edit-profile.html">Edit Profile</a>
-              <a class="quick-link" href="dashboard.html">Return to Dashboard</a>
-              <a class="quick-link" href="signout-confirm.html">Open Sign Out Confirmation</a>
-            </div>
+            <div id="settings-message" class="message"></div>
           </article>
         </div>
       </section>
     </main>
   </div>
+  <script>
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
+  <script type="module" src="../js/settings.js"></script>
 </body>
 </html>

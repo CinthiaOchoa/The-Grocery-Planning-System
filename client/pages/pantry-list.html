@@ -198,6 +198,10 @@
       </section>
     </main>
   </div>
+  <script>
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
 <script type="module" src="../js/pantry.js"></script>
 </body>
 </html>
