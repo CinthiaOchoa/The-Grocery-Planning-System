@@ -1,7 +1,25 @@
 {
+  "name": "the-grocery-planning-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CinthiaOchoa/The-Grocery-Planning-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CinthiaOchoa/The-Grocery-Planning-System/issues"
+  },
+  "homepage": "https://github.com/CinthiaOchoa/The-Grocery-Planning-System#readme",
   "dependencies": {
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mysql2": "^3.22.0"
   }

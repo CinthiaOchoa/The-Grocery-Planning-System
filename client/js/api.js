@@ -1,39 +1,85 @@
 // api.js
 
-const notImplemented = (action) => {
-  throw new Error(`${action} is not connected to the backend yet.`);
-};
+
+const BASE_URL = "http://localhost:3000/api";
+
+function notImplemented(feature) {
+  throw new Error(`${feature} is not implemented yet.`);
+}
+
+async function handleResponse(response) {
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed");
+  }
+
+  return data;
+}
 
 // ======================
 // STUDENT API
 // ======================
 export const studentAPI = {
   async getById(studentId) {
-    return null;
+    const response = await fetch(`${BASE_URL}/students/${encodeURIComponent(studentId)}`);
+    return handleResponse(response);
   },
 
   async getByEmail(email) {
-    return null;
+    const response = await fetch(`${BASE_URL}/students/email/${encodeURIComponent(email)}`);
+    return handleResponse(response);
   },
 
   async create(studentData) {
-    notImplemented("Create student");
+    const response = await fetch(`${BASE_URL}/students`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(studentData)
+    });
+    return handleResponse(response);
   },
 
   async update(studentId, updatedData) {
-    notImplemented("Update student");
+    const response = await fetch(`${BASE_URL}/students/${encodeURIComponent(studentId)}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updatedData)
+    });
+    return handleResponse(response);
   },
 
   async updateThemePreference(studentId, themePreference) {
-    notImplemented("Update student theme preference");
+    const response = await fetch(`${BASE_URL}/students/${encodeURIComponent(studentId)}/theme`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ theme_preference: themePreference })
+    });
+    return handleResponse(response);
   },
 
   async updateBudget(studentId, budgetPerWeek) {
-    notImplemented("Update student budget");
+    const response = await fetch(`${BASE_URL}/students/${encodeURIComponent(studentId)}/budget`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ budget_per_week: budgetPerWeek })
+    });
+    return handleResponse(response);
   },
 
   async delete(studentId) {
-    notImplemented("Delete student");
+    const response = await fetch(`${BASE_URL}/students/${encodeURIComponent(studentId)}`, {
+      method: "DELETE"
+    });
+    return handleResponse(response);
   }
 };
 
@@ -42,15 +88,19 @@ export const studentAPI = {
 // ======================
 export const authAPI = {
   async login({ email, password }) {
-    notImplemented("Login");
-  },
+    const response = await fetch("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
 
-  async signup(studentData) {
-    notImplemented("Signup");
-  },
+    if (!response.ok) {
+      throw new Error("Invalid email or password");
+    }
 
-  async logout() {
-    notImplemented("Logout");
+    return response.json();
   }
 };
 
@@ -353,3 +403,5 @@ export const recipeStepAPI = {
     return response.json();
   }
 };
+
+//

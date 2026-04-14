@@ -154,8 +154,7 @@ function initializeState() {
     storedStudent.student_id ||
     storedStudent.studentId ||
     null;
-
-  state.currentStudentId = storedStudentId;
+  state.currentStudentId = storedStudentId || 1;
   state.currentStudent = normalizeStudent(storedStudent);
   state.originalStudent = normalizeStudent(storedStudent);
   state.selectedImageDataUrl = state.currentStudent.profile_picture_url || "";

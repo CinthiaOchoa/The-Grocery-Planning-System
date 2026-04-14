@@ -7,20 +7,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Backend is running");
-});
-
-app.get("/test-db", async (req, res) => {
+// ✅ TEST ROUTE
+app.get("/api/test-db", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM student");
-    res.json(rows);
+    const [rows] = await pool.query("SELECT 1 AS test");
+    res.json({
+      ok: true,
+      message: "Database connected",
+      rows
+    });
   } catch (error) {
-    console.error("REAL DB ERROR:", error);
     res.status(500).json({
-      error: "DB connection failed",
-      details: error.message,
-      code: error.code
+      ok: false,
+      error: error.message
     });
   }
 });
