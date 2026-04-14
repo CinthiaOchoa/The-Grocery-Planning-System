@@ -1,26 +1,33 @@
-import { authAPI } from "./api.js";
+async function handleLogin(event) {
+  event.preventDefault();
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
+  const email = document.querySelector("#studentEmail").value.trim();
+  const password = document.querySelector("#studentPassword").value;
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault(); // 🚨 THIS STOPS THE URL ?email=...
+  try {
+    const response = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
 
-    const email = document.getElementById("studentEmail").value.trim();
-    const password = document.getElementById("studentPassword").value.trim();
+    const data = await response.json();
 
-    try {
-      const student = await authAPI.login({ email, password });
-
-      // save user
-      localStorage.setItem("currentStudent", JSON.stringify(student));
-      localStorage.setItem("studentId", student.student_id);
-
-      // go to profile
-      window.location.href = "profile.html";
-
-    } catch (error) {
-      alert(error.message || "Login failed");
+    if (!response.ok) {
+      alert(data.message || "Login failed");
+      return;
     }
-  });
-});
+
+    localStorage.setItem("currentStudent", JSON.stringify(data));
+    window.location.href = "./dashboard.html";
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Cannot connect to server");
+  }
+}
+
+document
+  .getElementById("loginForm")
+  .addEventListener("submit", handleLogin);
