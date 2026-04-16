@@ -1,5 +1,5 @@
 import { recipeIngredientAPI } from "./api.js";
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 const elements = {
   form: document.getElementById("recipeIngredientForm"),
   recipeId: document.getElementById("recipe_id"),

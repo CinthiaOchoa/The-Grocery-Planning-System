@@ -1,5 +1,5 @@
 // recipes.js
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 import {
   $,
   on,

@@ -258,7 +258,7 @@
                   <h4>Sign Out</h4>
                   <p>This can stay as frontend navigation for now.</p>
                   <div class="toggle-row">
-                    <a class="danger-btn" href="signout-confirm.html">Open Sign Out Confirmation</a>
+                    <button class="danger-btn" onclick="logout()">Sign Out</button>
                   </div>
                 </div>
               </div>
@@ -279,5 +279,9 @@
     document.body.dataset.theme = savedTheme;
   </script>
   <script type="module" src="../js/settings.js"></script>
+  <script type="module">
+    import { logout } from "../js/auth.js";
+    window.logout = logout;
+  </script>
 </body>
 </html>

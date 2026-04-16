@@ -2,7 +2,8 @@
 
 import { $, on, clearMessage, showMessage, setText } from "./utils.js";
 import { studentAPI } from "./api.js";
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
+import { requireAuth } from "./currentStudent.js";
 const STORAGE_KEYS = {
   currentStudent: "currentStudent",
   studentId: "studentId",
@@ -61,9 +62,11 @@ const elements = {
 document.addEventListener("DOMContentLoaded", initProfilePage);
 
 async function initProfilePage() {
+  requireAuth();
   cacheElements();
   bindEvents();
   initializeState();
+  loadCurrentStudentUI();
   await loadStudent();
 }
 

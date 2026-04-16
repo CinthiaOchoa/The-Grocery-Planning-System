@@ -1,5 +1,5 @@
 // ingredients.js
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("newIngredientForm");
   const tableBody = document.getElementById("ingredientsTableBody");

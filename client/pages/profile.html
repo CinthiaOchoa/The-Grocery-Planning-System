@@ -127,7 +127,7 @@
           <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link active" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
           <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="#" onclick="logout()"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
     </aside>
@@ -239,5 +239,9 @@
     document.body.dataset.theme = savedTheme;
   </script>
   <script type="module" src="../js/profile.js"></script>
+  <script type="module">
+    import { logout } from "../js/auth.js";
+    window.logout = logout;
+  </script>
 </body>
 </html>

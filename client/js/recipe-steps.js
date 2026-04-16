@@ -1,5 +1,5 @@
 import { recipeAPI, recipeStepAPI } from "./api.js";
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 const elements = {
   recipeTitle: document.getElementById("recipeTitle"),
   recipeSubtitle: document.getElementById("recipeSubtitle"),

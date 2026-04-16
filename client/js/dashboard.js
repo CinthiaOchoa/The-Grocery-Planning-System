@@ -1,5 +1,5 @@
 // dashboard.js
-
+import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
 import {
     $,
     clearMessage,
@@ -55,8 +55,10 @@ import {
   document.addEventListener("DOMContentLoaded", initDashboardPage);
   
   async function initDashboardPage() {
+    requireAuth();
     cacheElements();
     initializeState();
+    loadCurrentStudentUI();
     await loadDashboardData();
   }
   
@@ -73,13 +75,10 @@ import {
   }
   
   function initializeState() {
-    /*
-      Later this should come from auth/session/localStorage.
-      Example:
-      state.currentStudentId = localStorage.getItem("studentId");
-    */
-    state.currentStudentId = null;
-    state.currentStudent = null;
+    const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
+  
+    state.currentStudentId = currentStudent?.student_id || null;
+    state.currentStudent = currentStudent || null;
     state.pantry = null;
     state.pantryItems = [];
     state.ingredients = [];
@@ -172,7 +171,7 @@ import {
   }
   
   function renderSummaryCards() {
-    setText(elements.budgetValue, formatBudget(state.currentStudent?.budgetPerWeek));
+    setText(elements.budgetValue, formatBudget(state.currentStudent?.budget_per_week));
     setText(elements.pantryCountValue, String(state.pantryItems.length));
     setText(elements.ingredientCountValue, String(state.ingredients.length));
     setText(elements.recipeCountValue, String(state.recipes.length));

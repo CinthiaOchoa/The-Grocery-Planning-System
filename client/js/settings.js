@@ -1,5 +1,4 @@
-// settings.js
-
+import { requireAuth } from "./currentStudent.js";
 import {
   $,
   on,
@@ -8,6 +7,8 @@ import {
   showMessage,
   setText
 } from "./utils.js";
+
+import { loadCurrentStudentUI } from "./currentStudent.js";
 
 // ============================
 // PAGE STATE
@@ -37,9 +38,11 @@ const elements = {
 document.addEventListener("DOMContentLoaded", initSettingsPage);
 
 function initSettingsPage() {
+  requireAuth();
   cacheElements();
   bindEvents();
   initializeState();
+  loadCurrentStudentUI();
   loadFrontendSettings();
 }
 

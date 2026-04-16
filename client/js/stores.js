@@ -1,15 +1,11 @@
 // stores.js
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 import {
   $,
   on,
-  onDelegate,
   clearMessage,
   showMessage,
-  renderTableBody,
-  renderEmptyState,
-  createRow,
-  createActionButtons
+  renderEmptyState
 } from "./utils.js";
 
 import { storeAPI } from "./api.js";
@@ -90,8 +86,9 @@ function renderStoresTable() {
     return;
   }
 
-  const rows = storesToRender.map((store) => createStoreRow(store));
-  renderTableBody(elements.tableBody, rows);
+  elements.tableBody.innerHTML = storesToRender
+    .map((store) => createStoreRow(store))
+    .join("");
 }
 
 function createStoreRow(store) {
@@ -99,31 +96,23 @@ function createStoreRow(store) {
   const name = store.name ?? "";
   const address = store.address ?? "";
 
-  const purchaseLinks = `
-    <div class="action-group">
-      <a href="store-purchases.html?store_id=${encodeURIComponent(storeId)}" class="btn-link-action">
-        View Purchases
-      </a>
-      <a href="add-purchase.html?store_id=${encodeURIComponent(storeId)}" class="btn-link-action">
-        Add Purchase
-      </a>
-    </div>
+  return `
+    <tr>
+      <td>${storeId}</td>
+      <td>${name}</td>
+      <td>${address}</td>
+      <td>
+        <div class="action-group">
+          <a href="store-purchases.html?store_id=${encodeURIComponent(storeId)}" class="btn-link-action">
+            View Purchases
+          </a>
+          <a href="add-purchase.html?store_id=${encodeURIComponent(storeId)}" class="btn-link-action">
+            Add Purchase
+          </a>
+        </div>
+      </td>
+    </tr>
   `;
-
-
-
-  const allActions = `
-    <div class="action-group">
-      ${purchaseLinks}
-    </div>
-  `;
-
-  return createRow([
-    storeId,
-    name,
-    address,
-    allActions
-  ]);
 }
 
 // ============================

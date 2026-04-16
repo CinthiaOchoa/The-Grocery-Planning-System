@@ -1,5 +1,5 @@
 // pantry.js
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 import {
   $,
   onDelegate

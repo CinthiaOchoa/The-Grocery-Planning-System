@@ -164,3 +164,11 @@ import {
       throw new Error("Budget per week must be a valid number.");
     }
   }
+
+  export function logout() {
+    localStorage.removeItem("currentStudent");
+    localStorage.removeItem("studentId");
+    localStorage.removeItem("currentStudentId");
+    localStorage.removeItem("themePreference");
+    window.location.href = "login.html";
+  }

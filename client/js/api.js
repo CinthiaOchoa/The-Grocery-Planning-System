@@ -88,7 +88,7 @@ export const studentAPI = {
 // ======================
 export const authAPI = {
   async login({ email, password }) {
-    const response = await fetch("http://localhost:3000/api/auth/login", {
+    const response = await fetch("http://localhost:3000/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -205,24 +205,35 @@ export const pantryItemAPI = {
 // STORE API
 // ======================
 export const storeAPI = {
-  async getAllStores() {
-    return [];
+  async getAll() {
+    const response = await fetch("http://localhost:3000/api/stores");
+    if (!response.ok) throw new Error("Failed to fetch stores");
+    return response.json();
   },
 
-  async getStoreById(storeId) {
-    return null;
+  async create(storeData) {
+    const response = await fetch("http://localhost:3000/api/stores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(storeData)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create store");
+    }
+
+    return response.json();
   },
 
-  async createStore(storeData) {
-    notImplemented("Create store");
-  },
+  async delete(storeId) {
+    const response = await fetch(`http://localhost:3000/api/stores/${storeId}`, {
+      method: "DELETE"
+    });
 
-  async updateStore(storeId, updatedData) {
-    notImplemented("Update store");
-  },
-
-  async deleteStore(storeId) {
-    notImplemented("Delete store");
+    if (!response.ok) throw new Error("Delete failed");
   }
 };
 
@@ -405,3 +416,4 @@ export const recipeStepAPI = {
 };
 
 //
+

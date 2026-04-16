@@ -1,7 +1,7 @@
 // pantry-items.js
 
 import { $, onDelegate } from "./utils.js";
-
+import { loadCurrentStudentUI } from "./currentStudent.js";
 const state = {
   pantryId: null,
   pantryItems: []
