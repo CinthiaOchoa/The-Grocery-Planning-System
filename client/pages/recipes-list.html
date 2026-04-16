@@ -183,7 +183,7 @@
     <!-- FILTERS -->
     <section class="card">
       <div class="toolbar">
-        <input class="search-input" type="text" placeholder="Search recipes..." />
+        <input id="recipe-search" class="search-input" type="text" placeholder="Search recipes..." />
         <a href="new-recipe.html" class="btn-primary">+ Add Recipe</a>
       </div>
     </section>
@@ -202,34 +202,6 @@
           </tr>
         </thead>
         <tbody id="recipesTableBody">
-          <!-- Example row -->
-          <tr>
-            <td>R001</td>
-            <td>Chicken Rice Bowl</td>
-            <td>Lunch</td>
-            <td>2</td>
-            <td>30 min</td>
-            <td>
-              <div class="action-buttons">
-                <a href="recipe-ingredients.html?recipe_id=R001" class="btn-small btn-ingredients">View Ingredients</a>
-                <a href="recipe-steps.html?recipe_id=R001" class="btn-small btn-steps">View Steps</a>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td>R002</td>
-            <td>Vegetable Pasta</td>
-            <td>Dinner</td>
-            <td>4</td>
-            <td>25 min</td>
-            <td>
-              <div class="action-buttons">
-                <a href="recipe-ingredients.html?recipe_id=R002" class="btn-small btn-ingredients">View Ingredients</a>
-                <a href="recipe-steps.html?recipe_id=R002" class="btn-small btn-steps">View Steps</a>
-              </div>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -244,6 +216,13 @@
   const savedTheme = localStorage.getItem("themePreference") || "light";
   document.body.dataset.theme = savedTheme;
 </script>
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
+<script type="module" src="../js/recipes.js"></script>
 <script type="module">
   import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
 

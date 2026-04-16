@@ -84,7 +84,7 @@
           <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
           <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="#" onclick="logout()"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
 
@@ -101,14 +101,14 @@
           <h2 id="editPageTitle">Edit Pantry Item</h2>
           <p id="editPageSubtitle">Update the selected pantry item details.</p>
         </div>
-
+        
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
           </div>
-        </div>
+          </div>
       </header>
 
       <section class="page-grid">
@@ -168,7 +168,16 @@
       </section>
     </main>
   </div>
-  <script>
+  <script type="module">
+    import { pantryItemAPI } from "../js/api.js";
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+    import { logout } from "../js/auth.js";
+  
+    window.logout = logout;
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  
     const params = new URLSearchParams(window.location.search);
   
     const pantryItemId = params.get("pantryItemId") || "";
@@ -197,35 +206,44 @@
   
     if (goBackBtn) {
       goBackBtn.href = pantryId
-        ? `pantry-items.html?pantryId=${pantryId}`
+        ? `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`
         : "pantry-list.html";
     }
   
     if (form) {
-      form.addEventListener("submit", function (e) {
+      form.addEventListener("submit", async function (e) {
         e.preventDefault();
   
-        const updatedItem = {
-          pantryItemId: pantryItemInput.value,
-          pantryId: pantryId,
-          ingredientId: ingredientInput.value,
-          unit: unitInput.value,
-          quantity: quantityInput.value,
-          dateAdded: dateAddedInput.value,
-          expirationDate: expirationDateInput.value
-        };
+        try {
+          await pantryItemAPI.update(pantryItemId, {
+            unit: unitInput.value.trim(),
+            quantity: Number(quantityInput.value),
+            date_added: dateAddedInput.value,
+            expiration_date: expirationDateInput.value
+          });
   
-        localStorage.setItem("updatedPantryItem", JSON.stringify(updatedItem));
-  
-        window.location.href = pantryId
-          ? `pantry-items.html?pantryId=${pantryId}`
-          : "pantry-list.html";
+          window.location.href = pantryId
+            ? `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`
+            : "pantry-list.html";
+        } catch (error) {
+          console.error(error);
+          alert(error.message || "Update failed");
+        }
       });
     }
   </script>
+  
   <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
+
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
+  
 </body>
 </html>

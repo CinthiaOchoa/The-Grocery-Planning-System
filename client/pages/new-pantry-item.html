@@ -83,18 +83,6 @@
               </p>
 
               <div class="form-group">
-                <label for="pantry_item_id">Pantry Item ID</label>
-                <input
-                  id="pantry_item_id"
-                  name="pantry_item_id"
-                  class="form-control"
-                  type="text"
-                  placeholder="Example: PI004"
-                  required
-                />
-              </div>
-
-              <div class="form-group">
                 <label for="ingredient_select">Ingredient</label>
                 <select
                   id="ingredient_select"
@@ -183,6 +171,9 @@
   <script type="module">
     import { pantryItemAPI, ingredientAPI } from "../js/api.js";
     import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+    import { logout } from "../js/auth.js";
+  
+    window.logout = logout;
   
     requireAuth();
     loadCurrentStudentUI();
@@ -216,6 +207,7 @@
         });
       } catch (error) {
         console.error("Could not load ingredients:", error);
+        alert("Could not load ingredients.");
       }
     }
   
@@ -237,7 +229,6 @@
     pantryItemForm.addEventListener("submit", async function (e) {
       e.preventDefault();
   
-      const pantry_item_id = document.getElementById("pantry_item_id").value.trim();
       const ingredient_id = ingredientIdInput.value.trim();
       const unit = document.getElementById("unit").value.trim();
       const quantity = document.getElementById("quantity").value.trim();
@@ -249,7 +240,7 @@
         return;
       }
   
-      if (!pantry_item_id || !ingredient_id || !unit || !quantity || !date_added || !expiration_date) {
+      if (!ingredient_id || !unit || !quantity || !date_added || !expiration_date) {
         alert("Please fill in all fields.");
         return;
       }
@@ -271,7 +262,6 @@
       }
     });
   </script>
-
 
 
   <script>

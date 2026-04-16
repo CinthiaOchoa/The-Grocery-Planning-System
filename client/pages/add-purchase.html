@@ -159,13 +159,51 @@
 
         <form class="form-grid" id="purchaseForm">
           <div class="form-group">
+            <label for="store_select">Store</label>
+            <select
+              id="store_select"
+              name="store_select"
+              class="form-control"
+              required
+            >
+              <option value="">Select store</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
             <label for="store_id">Store ID</label>
-            <input id="store_id" name="store_id" class="form-control" type="text" placeholder="Enter store id" />
+            <input
+              id="store_id"
+              name="store_id"
+              class="form-control"
+              type="text"
+              placeholder="Auto-filled"
+              readonly
+            />
           </div>
 
           <div class="form-group">
+            <label for="ingredient_select">Ingredient</label>
+            <select
+              id="ingredient_select"
+              name="ingredient_select"
+              class="form-control"
+              required
+            >
+              <option value="">Select ingredient</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
             <label for="ingredient_id">Ingredient ID</label>
-            <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" />
+            <input
+              id="ingredient_id"
+              name="ingredient_id"
+              class="form-control"
+              type="text"
+              placeholder="Auto-filled"
+              readonly
+            />
           </div>
 
           <div class="form-group">
@@ -213,7 +251,7 @@
   </script>
 
 <script type="module">
-  import { purchaseAPI } from "../js/api.js";
+  import { purchaseAPI, ingredientAPI, storeAPI } from "../js/api.js";  
   import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
   import { logout } from "../js/auth.js";
 
@@ -223,7 +261,9 @@
   loadCurrentStudentUI();
 
   const form = document.getElementById("purchaseForm");
+  const storeSelect = document.getElementById("store_select");
   const storeIdInput = document.getElementById("store_id");
+  const ingredientSelect = document.getElementById("ingredient_select");
   const ingredientIdInput = document.getElementById("ingredient_id");
   const studentIdInput = document.getElementById("student_id");
   const dateInput = document.getElementById("date");
@@ -241,13 +281,83 @@
   const currentStudentId = currentStudent?.student_id || "";
 
   if (selectedStoreId) {
-    storeIdInput.value = selectedStoreId;
-    storeIdInput.readOnly = true;
-    subtitle.textContent = `Add a new purchase for Store ID: ${selectedStoreId}`;
-  }
+  storeIdInput.value = selectedStoreId;
+  subtitle.textContent = `Add a new purchase for Store ID: ${selectedStoreId}`;
+}
 
   studentIdInput.value = currentStudentId;
   studentIdInput.readOnly = true;
+
+  async function fillStoreOptions() {
+  try {
+    const stores = await storeAPI.getAll();
+
+    stores.forEach((store) => {
+      const storeId = store.storeId ?? store.store_id ?? "";
+      const name = store.name ?? "";
+
+      const option = document.createElement("option");
+      option.value = storeId;
+      option.textContent = `${name} (${storeId})`;
+      storeSelect.appendChild(option);
+    });
+
+    if (selectedStoreId) {
+      storeSelect.value = selectedStoreId;
+      storeIdInput.value = selectedStoreId;
+      storeSelect.disabled = true;
+    }
+  } catch (error) {
+    console.error("Could not load stores:", error);
+    messageBox.textContent = "Could not load stores.";
+  }
+}
+
+function updateStoreId() {
+  storeIdInput.value = storeSelect.value || "";
+}
+
+  async function fillIngredientOptions() {
+    try {
+      const ingredients = await ingredientAPI.getAll();
+
+      ingredients.forEach((ingredient) => {
+        const ingredientId = ingredient.ingredientId ?? ingredient.ingredient_id ?? "";
+        const name = ingredient.name ?? "";
+
+        const option = document.createElement("option");
+        option.value = ingredientId;
+        option.textContent = `${name} (${ingredientId})`;
+        ingredientSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Could not load ingredients:", error);
+      messageBox.textContent = "Could not load ingredients.";
+    }
+  }
+
+  function updateIngredientId() {
+    ingredientIdInput.value = ingredientSelect.value || "";
+  }
+
+  fillStoreOptions();
+  fillIngredientOptions();
+
+  storeSelect.addEventListener("change", updateStoreId);
+  ingredientSelect.addEventListener("change", updateIngredientId);
+
+  form.addEventListener("reset", () => {
+  setTimeout(() => {
+    if (!selectedStoreId) {
+      storeSelect.selectedIndex = 0;
+      storeIdInput.value = "";
+    }
+
+    ingredientSelect.selectedIndex = 0;
+    ingredientIdInput.value = "";
+    messageBox.textContent = "";
+  }, 0);
+});
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();

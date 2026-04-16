@@ -153,32 +153,43 @@
     let allPurchases = [];
   
     function createPurchaseRow(purchase) {
-      return `
-        <tr>
-          <td>${purchase.store_id}</td>
-          <td>${purchase.ingredient_id}</td>
-          <td>${purchase.student_id}</td>
-          <td>${purchase.date ?? ""}</td>
-          <td>$${Number(purchase.price).toFixed(2)}</td>
-          <td>${purchase.quantity}</td>
-          <td>${purchase.unit ?? ""}</td>
-          <td>
-            <button
-              class="btn-link-action edit-purchase-btn"
-              data-purchase-id="${purchase.purchase_id}"
-              data-store-id="${purchase.store_id}"
-              data-ingredient-id="${purchase.ingredient_id}"
-              data-student-id="${purchase.student_id}"
-              data-date="${purchase.date ?? ""}"
-              data-price="${purchase.price}"
-              data-quantity="${purchase.quantity}"
-              data-unit="${purchase.unit ?? ""}"
-            >
-              Edit Purchase
-            </button>
-          </td>
-        </tr>
-      `;
+  return `
+    <tr>
+      <td>${purchase.store_id}</td>
+      <td>${purchase.ingredient_id}</td>
+      <td>${purchase.student_id}</td>
+      <td>${formatDate(purchase.date ?? "")}</td>
+      <td>$${Number(purchase.price).toFixed(2)}</td>
+      <td>${purchase.quantity}</td>
+      <td>${purchase.unit ?? ""}</td>
+      <td>
+        <button
+          class="btn-link-action edit-purchase-btn"
+          data-purchase-id="${purchase.purchase_id}"
+          data-store-id="${purchase.store_id}"
+          data-ingredient-id="${purchase.ingredient_id}"
+          data-student-id="${purchase.student_id}"
+          data-date="${purchase.date ?? ""}"
+          data-price="${purchase.price}"
+          data-quantity="${purchase.quantity}"
+          data-unit="${purchase.unit ?? ""}"
+        >
+          Edit Purchase
+        </button>
+      </td>
+    </tr>
+  `;
+}
+    function formatDate(value) {
+      if (!value) return "";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+
+      return date.toISOString().split("T")[0];
     }
   
     function renderPurchases() {
@@ -265,6 +276,9 @@
   
     loadPurchases();
   </script>
+
+
+  
   <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;

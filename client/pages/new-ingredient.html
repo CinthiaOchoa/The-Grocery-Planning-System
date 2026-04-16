@@ -112,7 +112,18 @@
             <form class="form-grid" id="newIngredientForm">
               <div class="form-group">
                 <label for="ingredient_id">Ingredient ID</label>
-                <input id="ingredient_id" name="ingredient_id" class="form-control" type="text" placeholder="Enter ingredient id" data-field="ingredient_id" />
+                <input
+                  id="ingredient_id"
+                  name="ingredient_id"
+                  class="form-control"
+                  type="text"
+                  placeholder="Loading next available ID..."
+                  data-field="ingredient_id"
+                  readonly
+                />
+                <small id="ingredientIdHelp" style="color:#6f5d57;">
+                  Suggested automatically from the current ingredients list.
+                </small>
               </div>
             
               <div class="form-group">

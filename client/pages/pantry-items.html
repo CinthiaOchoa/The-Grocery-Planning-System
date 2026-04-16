@@ -48,7 +48,7 @@
           <a class="nav-link" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
           <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="#" onclick="logout()"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
     </aside>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by pantry item id or ingredient id" />
+          <input id="pantry-item-search" class="search-input" type="text" placeholder="Search by pantry item id or ingredient id" />
           <a id="newPantryItemBtn" class="btn-primary">+ New Pantry Item</a>
           <a href="pantry-list.html" class="btn-secondary">Go Back</a>
         </div>
@@ -126,6 +126,11 @@
     requireAuth();
     loadCurrentStudentUI();
   </script>
+
+<script type="module">
+  import { logout } from "../js/auth.js";
+  window.logout = logout;
+</script>
 
 </body>
 </html>

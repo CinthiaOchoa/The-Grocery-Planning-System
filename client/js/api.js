@@ -183,8 +183,30 @@ export const pantryItemAPI = {
     });
 
     return handleResponse(response);
+  },
+
+  async update(pantryItemId, updatedData) {
+    const response = await fetch(`${BASE_URL}/pantry-items/${encodeURIComponent(pantryItemId)}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updatedData)
+    });
+
+    return handleResponse(response);
+  },
+
+  async delete(pantryItemId) {
+    const response = await fetch(`${BASE_URL}/pantry-items/${encodeURIComponent(pantryItemId)}`, {
+      method: "DELETE"
+    });
+  
+    return handleResponse(response);
   }
 };
+
+
 
 // ======================
 // STORE API
@@ -262,26 +284,18 @@ export const purchaseAPI = {
 // RECIPE API
 // ======================
 export const recipeAPI = {
-  async getAllRecipes() {
-    return [];
-  },
-
-  async getRecipeById(recipeId) {
-    return null;
-  },
-
   async getAll() {
-    return this.getAllRecipes();
+    const response = await fetch(`${BASE_URL}/recipes`);
+    return handleResponse(response);
   },
 
   async getById(recipeId) {
-    const response = await fetch(`/api/recipes/${encodeURIComponent(recipeId)}`);
-    if (!response.ok) throw new Error("Failed to fetch recipe.");
-    return response.json();
+    const response = await fetch(`${BASE_URL}/recipes/${encodeURIComponent(recipeId)}`);
+    return handleResponse(response);
   },
 
-  async createRecipe(recipeData) {
-    const response = await fetch(`/api/recipes`, {
+  async create(recipeData) {
+    const response = await fetch(`${BASE_URL}/recipes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -289,45 +303,35 @@ export const recipeAPI = {
       body: JSON.stringify(recipeData)
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to create recipe.");
-    }
-
-    return response.json();
-  },
-
-  async create(recipeData) {
-    return this.createRecipe(recipeData);
-  },
-
-  async updateRecipe(recipeId, updatedData) {
-    notImplemented("Update recipe");
-  },
-
-  async update(recipeId, updatedData) {
-    return this.updateRecipe(recipeId, updatedData);
-  },
-
-  async deleteRecipe(recipeId) {
-    notImplemented("Delete recipe");
+    return handleResponse(response);
   },
 
   async delete(recipeId) {
-    return this.deleteRecipe(recipeId);
+    const response = await fetch(`${BASE_URL}/recipes/${encodeURIComponent(recipeId)}`, {
+      method: "DELETE"
+    });
+
+    return handleResponse(response);
   }
 };
 // ======================
 // RECIPE INGREDIENT API
 // ======================
 export const recipeIngredientAPI = {
+  async getAll() {
+    const response = await fetch(`${BASE_URL}/recipe-ingredients`);
+    return handleResponse(response);
+  },
+
   async getByRecipeId(recipeId) {
-    const response = await fetch(`/api/recipe-ingredients?recipe_id=${encodeURIComponent(recipeId)}`);
-    if (!response.ok) throw new Error("Failed to fetch recipe ingredients.");
-    return response.json();
+    const response = await fetch(
+      `${BASE_URL}/recipe-ingredients?recipe_id=${encodeURIComponent(recipeId)}`
+    );
+    return handleResponse(response);
   },
 
   async create(recipeIngredientData) {
-    const response = await fetch(`/api/recipe-ingredients`, {
+    const response = await fetch(`${BASE_URL}/recipe-ingredients`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -335,34 +339,29 @@ export const recipeIngredientAPI = {
       body: JSON.stringify(recipeIngredientData)
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to create recipe ingredient.");
-    }
-
-    return response.json();
+    return handleResponse(response);
   }
 };
-
 // ======================
 // RECIPE STEP API
 // ======================
 export const recipeStepAPI = {
   async getRecipeStepsByRecipeId(recipeId) {
-    const response = await fetch(`/api/recipe-steps?recipe_id=${encodeURIComponent(recipeId)}`);
-    if (!response.ok) throw new Error("Failed to fetch recipe steps.");
-    return response.json();
+    const response = await fetch(
+      `${BASE_URL}/recipe-steps?recipe_id=${encodeURIComponent(recipeId)}`
+    );
+    return handleResponse(response);
   },
 
   async getRecipeStepByKeys({ recipeId, stepNumber }) {
     const response = await fetch(
-      `/api/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`
+      `${BASE_URL}/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`
     );
-    if (!response.ok) throw new Error("Failed to fetch recipe step.");
-    return response.json();
+    return handleResponse(response);
   },
 
   async addRecipeStep(recipeStepData) {
-    const response = await fetch(`/api/recipe-steps`, {
+    const response = await fetch(`${BASE_URL}/recipe-steps`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -370,13 +369,12 @@ export const recipeStepAPI = {
       body: JSON.stringify(recipeStepData)
     });
 
-    if (!response.ok) throw new Error("Failed to add recipe step.");
-    return response.json();
+    return handleResponse(response);
   },
 
   async updateRecipeStep(recipeId, stepNumber, updatedData) {
     const response = await fetch(
-      `/api/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`,
+      `${BASE_URL}/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`,
       {
         method: "PUT",
         headers: {
@@ -386,22 +384,19 @@ export const recipeStepAPI = {
       }
     );
 
-    if (!response.ok) throw new Error("Failed to update recipe step.");
-    return response.json();
+    return handleResponse(response);
   },
 
   async deleteRecipeStep(recipeId, stepNumber) {
     const response = await fetch(
-      `/api/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`,
+      `${BASE_URL}/recipe-steps/${encodeURIComponent(recipeId)}/${encodeURIComponent(stepNumber)}`,
       {
         method: "DELETE"
       }
     );
 
-    if (!response.ok) throw new Error("Failed to delete recipe step.");
-    return response.json();
+    return handleResponse(response);
   }
 };
-
 //
 

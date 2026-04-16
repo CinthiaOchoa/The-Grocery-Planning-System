@@ -420,17 +420,16 @@ app.get("/api/pantry-items/pantry/:pantryId", async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+      `SELECT pantry_item_id, pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
        FROM pantry_item
-       WHERE pantry_id = ?
-       ORDER BY expiration_date ASC, ingredient_id ASC`,
+       WHERE pantry_id = ?`,
       [pantryId]
     );
 
     res.json(rows);
   } catch (error) {
-    console.error("Get pantry items error:", error);
-    res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: "Error fetching pantry items" });
   }
 });
 
@@ -446,7 +445,7 @@ app.post("/api/pantry-items", async (req, res) => {
   } = req.body;
 
   try {
-    await pool.query(
+    const [result] = await pool.query(
       `INSERT INTO pantry_item
        (pantry_id, ingredient_id, unit, date_added, expiration_date, quantity)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -454,12 +453,10 @@ app.post("/api/pantry-items", async (req, res) => {
     );
 
     const [rows] = await pool.query(
-      `SELECT pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+      `SELECT pantry_item_id, pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
        FROM pantry_item
-       WHERE pantry_id = ? AND ingredient_id = ?
-       ORDER BY date_added DESC
-       LIMIT 1`,
-      [pantry_id, ingredient_id]
+       WHERE pantry_item_id = ?`,
+      [result.insertId]
     );
 
     res.status(201).json(rows[0]);
@@ -469,8 +466,348 @@ app.post("/api/pantry-items", async (req, res) => {
   }
 });
 
+app.put("/api/pantry-items/:id", async (req, res) => {
+  const { id } = req.params;
+  const { unit, quantity, date_added, expiration_date } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE pantry_item
+       SET unit = ?, quantity = ?, date_added = ?, expiration_date = ?
+       WHERE pantry_item_id = ?`,
+      [unit, quantity, date_added, expiration_date, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Pantry item not found" });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT pantry_item_id, pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+       FROM pantry_item
+       WHERE pantry_item_id = ?`,
+      [id]
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Update pantry item error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/api/pantry-items/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await pool.query(
+      "DELETE FROM pantry_item WHERE pantry_item_id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Pantry item not found" });
+    }
+
+    res.json({ message: "Pantry item deleted" });
+  } catch (error) {
+    console.error("Delete pantry item error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/pantry-items/pantry/:pantryId", async (req, res) => {
+  const { pantryId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT pantry_item_id, pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+       FROM pantry_item
+       WHERE pantry_id = ?
+       ORDER BY expiration_date ASC, pantry_item_id ASC`,
+      [pantryId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get pantry items error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// RECIPE ROUTES
+// ======================
+
+// GET all recipes
+app.get("/api/recipes", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM recipe ORDER BY recipe_id");
+    res.json(rows);
+  } catch (error) {
+    console.error("Get recipes error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET recipe by ID
+app.get("/api/recipes/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM recipe WHERE recipe_id = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Get recipe error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE recipe
+app.post("/api/recipes", async (req, res) => {
+  const { recipe_id, name, type, servings, total_time_prep } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO recipe (recipe_id, name, type, servings, total_time_prep)
+       VALUES (?, ?, ?, ?, ?)`,
+      [recipe_id, name, type, servings, total_time_prep]
+    );
+
+    const [rows] = await pool.query(
+      "SELECT * FROM recipe WHERE recipe_id = ?",
+      [recipe_id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create recipe error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE recipe
+app.delete("/api/recipes/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query("DELETE FROM recipe WHERE recipe_id = ?", [id]);
+    res.json({ message: "Recipe deleted" });
+  } catch (error) {
+    console.error("Delete recipe error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// ======================
+// RECIPE INGREDIENT ROUTES
+// ======================
+
+// GET recipe ingredients by recipe
+app.get("/api/recipe-ingredients", async (req, res) => {
+  const { recipe_id } = req.query;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT recipe_id, ingredient_id, amount, unit
+       FROM recipe_ingredients
+       WHERE recipe_id = ?
+       ORDER BY ingredient_id`,
+      [recipe_id]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get recipe ingredients error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE recipe ingredient
+app.post("/api/recipe-ingredients", async (req, res) => {
+  const { recipe_id, ingredient_id, amount, unit } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO recipe_ingredients (recipe_id, ingredient_id, amount, unit)
+       VALUES (?, ?, ?, ?)`,
+      [recipe_id, ingredient_id, amount, unit]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT recipe_id, ingredient_id, amount, unit
+       FROM recipe_ingredients
+       WHERE recipe_id = ? AND ingredient_id = ?`,
+      [recipe_id, ingredient_id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create recipe ingredient error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET ingredient by ID
+app.get("/api/ingredients/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM ingredients WHERE ingredient_id = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Ingredient not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Get ingredient by id error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// RECIPE STEP ROUTES
+// ======================
+
+// GET recipe steps by recipe_id
+app.get("/api/recipe-steps", async (req, res) => {
+  const { recipe_id } = req.query;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT recipe_id, step_number, description
+       FROM recipe_steps
+       WHERE recipe_id = ?
+       ORDER BY step_number ASC`,
+      [recipe_id]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get recipe steps error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET one recipe step
+app.get("/api/recipe-steps/:recipeId/:stepNumber", async (req, res) => {
+  const { recipeId, stepNumber } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT recipe_id, step_number, description
+       FROM recipe_steps
+       WHERE recipe_id = ? AND step_number = ?`,
+      [recipeId, stepNumber]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Recipe step not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Get recipe step error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE recipe step
+app.post("/api/recipe-steps", async (req, res) => {
+  const { recipe_id, step_number, description } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO recipe_steps (recipe_id, step_number, description)
+       VALUES (?, ?, ?)`,
+      [recipe_id, step_number, description]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT recipe_id, step_number, description
+       FROM recipe_steps
+       WHERE recipe_id = ? AND step_number = ?`,
+      [recipe_id, step_number]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create recipe step error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE recipe step
+app.put("/api/recipe-steps/:recipeId/:stepNumber", async (req, res) => {
+  const { recipeId, stepNumber } = req.params;
+  const { step_number, description } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE recipe_steps
+       SET step_number = ?, description = ?
+       WHERE recipe_id = ? AND step_number = ?`,
+      [step_number, description, recipeId, stepNumber]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Recipe step not found" });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT recipe_id, step_number, description
+       FROM recipe_steps
+       WHERE recipe_id = ? AND step_number = ?`,
+      [recipeId, step_number]
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Update recipe step error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE recipe step
+app.delete("/api/recipe-steps/:recipeId/:stepNumber", async (req, res) => {
+  const { recipeId, stepNumber } = req.params;
+
+  try {
+    const [result] = await pool.query(
+      `DELETE FROM recipe_steps
+       WHERE recipe_id = ? AND step_number = ?`,
+      [recipeId, stepNumber]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Recipe step not found" });
+    }
+
+    res.json({ message: "Recipe step deleted" });
+  } catch (error) {
+    console.error("Delete recipe step error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 
 //DONT MOVE
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+

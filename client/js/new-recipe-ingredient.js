@@ -1,8 +1,10 @@
-import { recipeIngredientAPI } from "./api.js";
-import { loadCurrentStudentUI } from "./currentStudent.js";
+import { recipeIngredientAPI, ingredientAPI } from "./api.js";
+import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
+
 const elements = {
   form: document.getElementById("recipeIngredientForm"),
   recipeId: document.getElementById("recipe_id"),
+  ingredientSelect: document.getElementById("ingredient_select"),
   ingredientId: document.getElementById("ingredient_id"),
   amount: document.getElementById("amount"),
   unit: document.getElementById("unit"),
@@ -12,7 +14,10 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", initNewRecipeIngredientPage);
 
-function initNewRecipeIngredientPage() {
+async function initNewRecipeIngredientPage() {
+  requireAuth();
+  loadCurrentStudentUI();
+
   const recipeId = getRecipeIdFromUrl();
 
   if (!recipeId) {
@@ -24,14 +29,62 @@ function initNewRecipeIngredientPage() {
   elements.recipeId.value = recipeId;
   elements.goBackBtn.href = `recipe-ingredients.html?recipe_id=${encodeURIComponent(recipeId)}`;
 
+  await loadIngredientOptions();
+
+  if (elements.ingredientSelect) {
+    elements.ingredientSelect.addEventListener("change", handleIngredientChange);
+  }
+
   if (elements.form) {
     elements.form.addEventListener("submit", handleSubmit);
+    elements.form.addEventListener("reset", handleReset);
   }
 }
 
 function getRecipeIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("recipe_id");
+}
+
+async function loadIngredientOptions() {
+  if (!elements.ingredientSelect) return;
+
+  try {
+    const ingredients = await ingredientAPI.getAll();
+
+    elements.ingredientSelect.innerHTML = `<option value="">Select ingredient</option>`;
+
+    ingredients.forEach((ingredient) => {
+      const ingredientId = ingredient.ingredient_id ?? ingredient.ingredientId ?? "";
+      const name = ingredient.name ?? "";
+
+      const option = document.createElement("option");
+      option.value = ingredientId;
+      option.textContent = `${name} (${ingredientId})`;
+
+      elements.ingredientSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Failed to load ingredients:", error);
+    showMessage("Could not load ingredient list.", "error");
+  }
+}
+
+function handleIngredientChange() {
+  if (!elements.ingredientId || !elements.ingredientSelect) return;
+  elements.ingredientId.value = elements.ingredientSelect.value || "";
+}
+
+function handleReset() {
+  setTimeout(() => {
+    if (elements.ingredientSelect) {
+      elements.ingredientSelect.selectedIndex = 0;
+    }
+
+    if (elements.ingredientId) {
+      elements.ingredientId.value = "";
+    }
+  }, 0);
 }
 
 async function handleSubmit(event) {
@@ -47,10 +100,6 @@ async function handleSubmit(event) {
 
   try {
     validateRecipeIngredient(recipeIngredientData);
-
-    if (!recipeIngredientAPI || typeof recipeIngredientAPI.create !== "function") {
-      throw new Error("recipeIngredientAPI.create is not available in api.js");
-    }
 
     await recipeIngredientAPI.create(recipeIngredientData);
 
@@ -72,7 +121,7 @@ function validateRecipeIngredient(data) {
   }
 
   if (!data.ingredient_id) {
-    throw new Error("Ingredient ID is required.");
+    throw new Error("Ingredient is required.");
   }
 
   if (Number.isNaN(data.amount)) {
@@ -86,7 +135,7 @@ function validateRecipeIngredient(data) {
 
 function showMessage(message, type = "error") {
   if (!elements.message) return;
-  elements.message.innerHTML = `<div class="message ${type}">${escapeHtml(message)}</div>`;
+  elements.message.innerHTML = `<div class="message ${escapeHtml(type)}">${escapeHtml(message)}</div>`;
 }
 
 function clearMessage() {

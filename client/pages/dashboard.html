@@ -305,11 +305,11 @@
         <div class="hero-actions">
           <div class="hero-mini">
             <small>Remaining Budget</small>
-            <strong>$</strong>
+            <strong id="dashboard-remaining-budget">$0.00</strong>
           </div>
           <div class="hero-mini">
             <small>Pantry Items Near Expiration</small>
-            <strong>n Items</strong>
+            <strong id="dashboard-expiring-count">0 Items</strong>
           </div>
         </div>
       </section>
@@ -317,25 +317,25 @@
       <section class="stats-grid">
         <article class="summary-card stat-card">
           <small>Weekly Budget</small>
-          <h4>$</h4>
+          <h4 id="dashboard-budget-value">$0.00</h4>
           <p>Total available budget for groceries this week.</p>
         </article>
-
+      
         <article class="summary-card stat-card">
           <small>Pantry Items</small>
-          <h4>n</h4>
+          <h4 id="dashboard-pantry-count">0</h4>
           <p>Ingredients currently saved in your pantry list.</p>
         </article>
-
+      
         <article class="summary-card stat-card">
           <small>Recipes Saved</small>
-          <h4>9</h4>
+          <h4 id="dashboard-recipe-count">0</h4>
           <p>Recipes you can review based on what you have.</p>
         </article>
-
+      
         <article class="summary-card stat-card">
           <small>Stores Nearby</small>
-          <h4>4</h4>
+          <h4 id="dashboard-store-count">0</h4>
           <p>Available stores based on your zip code and search.</p>
         </article>
       </section>
@@ -351,43 +351,18 @@
             <div class="budget-box">
               <div class="budget-row">
                 <span>Spent so far</span>
-                <strong>$</strong>
+                <strong id="dashboard-spent-value">$0.00</strong>
               </div>
               <div class="budget-row">
                 <span>Remaining</span>
-                <strong>$</strong>
+                <strong id="dashboard-remaining-value">$0.00</strong>
               </div>
               <div class="progress-track">
-                <div class="progress-fill"></div>
+                <div class="progress-fill" id="dashboard-budget-progress"></div>
               </div>
             </div>
 
-            <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Purchased chicken breast</h4>
-                  <p>Added from Kroger · 2 lb · April 3</p>
-                </div>
-                <span class="tag red">$</span>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Purchased rice</h4>
-                  <p>Added from Walmart · 1 bag · April 2</p>
-                </div>
-                <span class="tag sand">$3.49</span>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Purchased vegetables</h4>
-                  <p>Added from Target · mixed pack · April 1</p>
-                </div>
-                <span class="tag teal">$</span>
-              </div>
-            </div>
-          </article>
+          <div class="activity-list" id="dashboard-pantry-alerts-list"></div>
 
           <article class="card" style="margin-top: 20px;">
             <div class="card-header">
@@ -395,31 +370,7 @@
               <a href="recipes-list.html">See All</a>
             </div>
 
-            <div class="meal-list">
-              <div class="meal-item">
-                <div class="meal-info">
-                  <h4>Chicken Rice Bowl</h4>
-                  <p>Good match with chicken, rice, and vegetables in your pantry.</p>
-                </div>
-                <span class="tag teal">25 min</span>
-              </div>
-
-              <div class="meal-item">
-                <div class="meal-info">
-                  <h4>Spinach Pasta</h4>
-                  <p>Uses fast ingredients and works well for a student budget meal.</p>
-                </div>
-                <span class="tag sand">18 min</span>
-              </div>
-
-              <div class="meal-item">
-                <div class="meal-info">
-                  <h4>Vegetable Omelet</h4>
-                  <p>Simple breakfast recipe using eggs, spinach, and cheese.</p>
-                </div>
-                <span class="tag red">12 min</span>
-              </div>
-            </div>
+            <div class="meal-list" id="dashboard-recommended-meals-list"></div>
           </article>
         </div>
 

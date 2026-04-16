@@ -6,16 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCurrentStudentUI();
 
   const form = document.getElementById("newIngredientForm");
+  const ingredientIdInput = document.getElementById("ingredient_id");
   const tableBody = document.getElementById("ingredientsTableBody");
   const emptyState = document.querySelector(".ingredients-empty-state");
   const searchInput = document.getElementById("ingredient-search");
 
   let allIngredients = [];
 
-  // =========================
-  // NEW INGREDIENT PAGE
-  // =========================
   if (form) {
+    loadNextIngredientId();
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -51,15 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("reset", () => {
       setTimeout(() => {
-        const firstField = document.getElementById("ingredient_id");
-        if (firstField) firstField.focus();
+        loadNextIngredientId();
+        if (ingredientIdInput) ingredientIdInput.focus();
       }, 0);
     });
   }
 
-  // =========================
-  // INGREDIENTS DATASET PAGE
-  // =========================
   if (tableBody) {
     loadIngredientsTable();
   }
@@ -131,6 +128,41 @@ document.addEventListener("DOMContentLoaded", () => {
         </td>
       </tr>
     `;
+  }
+
+  async function loadNextIngredientId() {
+    if (!ingredientIdInput) return;
+
+    try {
+      const ingredients = await ingredientAPI.getAll();
+      const nextId = getNextIngredientId(ingredients);
+
+      ingredientIdInput.value = String(nextId);
+      ingredientIdInput.placeholder = `Next ID: ${nextId}`;
+    } catch (error) {
+      console.error("Could not load next ingredient ID:", error);
+      ingredientIdInput.value = "";
+      ingredientIdInput.placeholder = "Could not load ID";
+    }
+  }
+
+  function getNextIngredientId(ingredients) {
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      return 1;
+    }
+
+    let maxId = 0;
+
+    ingredients.forEach((ingredient) => {
+      const rawId = ingredient.ingredient_id ?? ingredient.ingredientId ?? 0;
+      const numericId = Number(rawId);
+
+      if (!Number.isNaN(numericId) && numericId > maxId) {
+        maxId = numericId;
+      }
+    });
+
+    return maxId + 1;
   }
 
   if (tableBody) {

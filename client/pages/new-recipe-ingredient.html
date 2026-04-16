@@ -80,7 +80,18 @@
           <label for="recipe_id">Recipe ID</label>
           <input id="recipe_id" name="recipe_id" class="form-control" type="text" readonly />
         </div>
-
+        <div class="form-group">
+          <label for="ingredient_select">Ingredient</label>
+          <select
+            id="ingredient_select"
+            name="ingredient_select"
+            class="form-control"
+            required
+          >
+            <option value="">Select ingredient</option>
+          </select>
+        </div>
+        
         <div class="form-group">
           <label for="ingredient_id">Ingredient ID</label>
           <input
@@ -88,8 +99,8 @@
             name="ingredient_id"
             class="form-control"
             type="text"
-            placeholder="Enter ingredient ID"
-            required
+            placeholder="Auto-filled"
+            readonly
           />
         </div>
 
