@@ -113,6 +113,11 @@ export const pantryAPI = {
     return handleResponse(response);
   },
 
+  async getByStudentId(studentId) {
+    const response = await fetch(`${BASE_URL}/pantries/student/${encodeURIComponent(studentId)}`);
+    return handleResponse(response);
+  },
+
   async create(pantryData) {
     const response = await fetch(`${BASE_URL}/pantries`, {
       method: "POST",
@@ -170,6 +175,10 @@ export const ingredientAPI = {
 export const pantryItemAPI = {
   async getByPantryId(pantryId) {
     const response = await fetch(`${BASE_URL}/pantry-items/pantry/${encodeURIComponent(pantryId)}`);
+    return handleResponse(response);
+  },
+  async getByStudentId(studentId) {
+    const response = await fetch(`${BASE_URL}/pantry-items/student/${encodeURIComponent(studentId)}`);
     return handleResponse(response);
   },
 
@@ -248,6 +257,11 @@ export const storeAPI = {
 // PURCHASED INGREDIENT API
 // ======================
 export const purchaseAPI = {
+  async getAll() {
+    const response = await fetch(`${BASE_URL}/purchases`);
+    return handleResponse(response);
+  },
+
   async getPurchasesByStoreIdAndStudentId(storeId, studentId) {
     const response = await fetch(
       `${BASE_URL}/purchases/store/${encodeURIComponent(storeId)}/student/${encodeURIComponent(studentId)}`

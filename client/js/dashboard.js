@@ -1,10 +1,8 @@
 import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
 import { $ } from "./utils.js";
 import {
-  studentAPI,
   pantryAPI,
   pantryItemAPI,
-  ingredientAPI,
   recipeAPI,
   recipeIngredientAPI,
   storeAPI,
@@ -16,7 +14,6 @@ const state = {
   currentStudent: null,
   pantry: null,
   pantryItems: [],
-  ingredients: [],
   recipes: [],
   recipeIngredients: [],
   stores: [],
@@ -24,15 +21,22 @@ const state = {
 };
 
 const elements = {
+  advancedList: null,
+  advancedEmpty: null,
+  maxTimeInput: null,
+  maxCostInput: null,
+  findBtn: null,
+
   budgetValue: null,
-  pantryCountValue: null,
-  recipeCountValue: null,
-  storeCountValue: null,
-  remainingBudgetHero: null,
-  expiringCountHero: null,
+  pantryCount: null,
+  recipeCount: null,
+  storeCount: null,
   spentValue: null,
   remainingValue: null,
+  remainingBudgetHero: null,
+  expiringCountHero: null,
   budgetProgress: null,
+
   recentPurchasesList: null,
   pantryAlertsList: null,
   recommendedMealsList: null
@@ -47,219 +51,137 @@ async function initDashboardPage() {
   loadCurrentStudentUI();
   await loadDashboardData();
   renderDashboard();
+  bindEvents();
 }
 
 function cacheElements() {
+  elements.advancedList = $("#dashboard-advanced-results-list");
+  elements.advancedEmpty = $("#dashboard-advanced-empty");
+  elements.maxTimeInput = $("#advanced-max-time");
+  elements.maxCostInput = $("#advanced-max-budget");
+  elements.findBtn = $("#advanced-apply-btn");
+
   elements.budgetValue = $("#dashboard-budget-value");
-  elements.pantryCountValue = $("#dashboard-pantry-count");
-  elements.recipeCountValue = $("#dashboard-recipe-count");
-  elements.storeCountValue = $("#dashboard-store-count");
-  elements.remainingBudgetHero = $("#dashboard-remaining-budget");
-  elements.expiringCountHero = $("#dashboard-expiring-count");
+  elements.pantryCount = $("#dashboard-pantry-count");
+  elements.recipeCount = $("#dashboard-recipe-count");
+  elements.storeCount = $("#dashboard-store-count");
   elements.spentValue = $("#dashboard-spent-value");
   elements.remainingValue = $("#dashboard-remaining-value");
+  elements.remainingBudgetHero = $("#dashboard-remaining-budget");
+  elements.expiringCountHero = $("#dashboard-expiring-count");
   elements.budgetProgress = $("#dashboard-budget-progress");
+
   elements.recentPurchasesList = $("#dashboard-recent-purchases-list");
   elements.pantryAlertsList = $("#dashboard-pantry-alerts-list");
   elements.recommendedMealsList = $("#dashboard-recommended-meals-list");
 }
 
+function bindEvents() {
+  if (elements.findBtn) {
+    elements.findBtn.addEventListener("click", handleAdvancedSearch);
+  }
+}
+
 function initializeState() {
   const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
-
   state.currentStudentId = currentStudent?.student_id || null;
   state.currentStudent = currentStudent || null;
-  state.pantry = null;
-  state.pantryItems = [];
-  state.ingredients = [];
-  state.recipes = [];
-  state.stores = [];
-  state.purchases = [];
 }
 
 async function loadDashboardData() {
-  try {
-    if (state.currentStudentId) {
-      const student = await studentAPI.getById(state.currentStudentId);
-      state.currentStudent = student || state.currentStudent;
-    }
+  const [
+    recipes,
+    recipeIngredients,
+    stores,
+    purchases,
+    pantry
+  ] = await Promise.all([
+    recipeAPI.getAll(),
+    recipeIngredientAPI.getAll(),
+    storeAPI.getAll(),
+    purchaseAPI.getAll(),
+    state.currentStudentId
+      ? pantryAPI.getByStudentId(state.currentStudentId)
+      : Promise.resolve(null)
+  ]);
 
-    const [
-      ingredients,
-      recipes,
-      recipeIngredients,
-      stores,
-      purchases,
-      pantry
-    ] = await Promise.all([
-      ingredientAPI.getAll(),
-      recipeAPI.getAll(),
-      recipeIngredientAPI.getAll(),
-      storeAPI.getAll(),
-      purchaseAPI.getAll(),
-      state.currentStudentId ? pantryAPI.getByStudentId(state.currentStudentId) : Promise.resolve(null)
-    ]);
-    
-    state.ingredients = Array.isArray(ingredients) ? ingredients : [];
-    state.recipes = Array.isArray(recipes) ? recipes : [];
-    state.recipeIngredients = Array.isArray(recipeIngredients) ? recipeIngredients : [];
-    state.stores = Array.isArray(stores) ? stores : [];
-    state.purchases = Array.isArray(purchases) ? purchases : [];
-    state.pantry = pantry || null;
+  state.recipes = Array.isArray(recipes) ? recipes : [];
+  state.recipeIngredients = Array.isArray(recipeIngredients) ? recipeIngredients : [];
+  state.stores = Array.isArray(stores) ? stores : [];
+  state.purchases = Array.isArray(purchases) ? purchases : [];
+  state.pantry = pantry || null;
 
-    const pantryId =
-      state.pantry?.pantry_id ??
-      state.pantry?.pantryId ??
-      null;
-
-    if (pantryId) {
-      const pantryItems = await pantryItemAPI.getByPantryId(pantryId);
-      state.pantryItems = Array.isArray(pantryItems) ? pantryItems : [];
-    }
-  } catch (error) {
-    console.error("Failed to load dashboard data:", error);
+  if (state.currentStudentId) {
+    const items = await pantryItemAPI.getByStudentId(state.currentStudentId);
+    state.pantryItems = Array.isArray(items) ? items : [];
+  } else {
+    state.pantryItems = [];
   }
 }
 
 function renderDashboard() {
-  renderSummaryCards();
   renderBudgetSummary();
+  renderCounts();
   renderRecentPurchases();
   renderPantryAlerts();
-  function renderRecommendedMeals() {
-    if (!elements.recommendedMealsList) return;
-  
-    const pantryIngredientIds = new Set(
-      state.pantryItems.map((item) =>
-        String(item.ingredient_id ?? item.ingredientId ?? "")
-      )
-    );
-  
-    if (!state.recipes.length) {
-      elements.recommendedMealsList.innerHTML = `
-        <div class="meal-item">
-          <div class="meal-info">
-            <h4>No recipes available</h4>
-            <p>Add recipes to the database to see recommendations here.</p>
-          </div>
-          <span class="tag sand">--</span>
-        </div>
-      `;
-      return;
-    }
-  
-    const rankedRecipes = state.recipes
-      .map((recipe) => {
-        const recipeId = String(recipe.recipe_id ?? recipe.recipeId ?? "");
-  
-        const relatedIngredients = state.recipeIngredients.filter((ri) => {
-          const riRecipeId = String(ri.recipe_id ?? ri.recipeId ?? "");
-          return riRecipeId === recipeId;
-        });
-  
-        const totalIngredients = relatedIngredients.length;
-  
-        const matchedIngredients = relatedIngredients.filter((ri) => {
-          const ingredientId = String(ri.ingredient_id ?? ri.ingredientId ?? "");
-          return pantryIngredientIds.has(ingredientId);
-        });
-  
-        return {
-          ...recipe,
-          totalIngredients,
-          matchedCount: matchedIngredients.length
-        };
-      })
-      .filter((recipe) => recipe.totalIngredients > 0)
-      .sort((a, b) => {
-        if (b.matchedCount !== a.matchedCount) {
-          return b.matchedCount - a.matchedCount;
-        }
-        return a.totalIngredients - b.totalIngredients;
-      })
-      .slice(0, 3);
-  
-    if (!rankedRecipes.length) {
-      elements.recommendedMealsList.innerHTML = `
-        <div class="meal-item">
-          <div class="meal-info">
-            <h4>No recipe matches yet</h4>
-            <p>Add pantry items and recipe ingredients to see better recommendations.</p>
-          </div>
-          <span class="tag sand">0%</span>
-        </div>
-      `;
-      return;
-    }
-  
-    elements.recommendedMealsList.innerHTML = rankedRecipes.map((recipe) => {
-      const recipeId = recipe.recipe_id ?? recipe.recipeId ?? "";
-      const recipeName = recipe.name ?? recipe.recipe_name ?? "Unnamed Recipe";
-      const recipeDescription =
-        recipe.description ??
-        recipe.notes ??
-        "Recipe available in your recipe list.";
-  
-      const totalTime =
-        recipe.total_time_prep ??
-        recipe.totalTimePrep ??
-        recipe.total_time ??
-        recipe.time_minutes ??
-        "--";
-  
-      const matchPercent =
-        recipe.totalIngredients > 0
-          ? Math.round((recipe.matchedCount / recipe.totalIngredients) * 100)
-          : 0;
-  
-      return `
-        <div class="meal-item">
-          <div class="meal-info">
-            <h4>
-              <a href="view-recipe.html?recipe_id=${encodeURIComponent(recipeId)}">
-                ${escapeHtml(recipeName)}
-              </a>
-            </h4>
-            <p>
-              ${escapeHtml(recipeDescription)}
-              · Match: ${recipe.matchedCount}/${recipe.totalIngredients} ingredients
-            </p>
-          </div>
-          <span class="tag teal">${matchPercent}%</span>
-        </div>
-      `;
-    }).join("");
-  }
-}
-
-function renderSummaryCards() {
-  setText(elements.budgetValue, formatCurrency(state.currentStudent?.budget_per_week));
-  setText(elements.pantryCountValue, String(state.pantryItems.length));
-  setText(elements.recipeCountValue, String(state.recipes.length));
-  setText(elements.storeCountValue, String(state.stores.length));
+  renderRecommendedMeals();
 }
 
 function renderBudgetSummary() {
   const weeklyBudget = Number(state.currentStudent?.budget_per_week || 0);
 
-  const studentPurchases = state.purchases.filter((purchase) => {
-    const purchaseStudentId = purchase.student_id ?? purchase.studentId;
-    return String(purchaseStudentId) === String(state.currentStudentId);
-  });
+  const studentPurchases = state.purchases.filter(
+    (p) => String(p.student_id) === String(state.currentStudentId)
+  );
 
-  const spent = studentPurchases.reduce((sum, purchase) => {
-    return sum + Number(purchase.price || 0);
+  const spent = studentPurchases.reduce((sum, p) => {
+    return sum + Number(p.price || 0);
   }, 0);
 
   const remaining = Math.max(weeklyBudget - spent, 0);
   const percentUsed = weeklyBudget > 0 ? Math.min((spent / weeklyBudget) * 100, 100) : 0;
 
-  setText(elements.spentValue, formatCurrency(spent));
-  setText(elements.remainingValue, formatCurrency(remaining));
-  setText(elements.remainingBudgetHero, formatCurrency(remaining));
+  if (elements.budgetValue) elements.budgetValue.textContent = `$${weeklyBudget.toFixed(2)}`;
+  if (elements.spentValue) elements.spentValue.textContent = `$${spent.toFixed(2)}`;
+  if (elements.remainingValue) elements.remainingValue.textContent = `$${remaining.toFixed(2)}`;
+  if (elements.remainingBudgetHero) elements.remainingBudgetHero.textContent = `$${remaining.toFixed(2)}`;
 
   if (elements.budgetProgress) {
     elements.budgetProgress.style.width = `${percentUsed}%`;
+  }
+}
+
+function renderCounts() {
+  if (elements.pantryCount) {
+    elements.pantryCount.textContent = String(state.pantryItems.length);
+  }
+
+  if (elements.recipeCount) {
+    elements.recipeCount.textContent = String(state.recipes.length);
+  }
+
+  if (elements.storeCount) {
+    elements.storeCount.textContent = String(state.stores.length);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const threeDaysLater = new Date(today);
+  threeDaysLater.setDate(today.getDate() + 3);
+
+  const expiringItems = state.pantryItems.filter((item) => {
+    const rawDate = String(item.expiration_date).slice(0, 10);
+    const [year, month, day] = rawDate.split("-").map(Number);
+
+    const exp = new Date(year, month - 1, day);
+    exp.setHours(0, 0, 0, 0);
+
+    return exp <= threeDaysLater;
+  });
+
+  if (elements.expiringCountHero) {
+    elements.expiringCountHero.textContent = `${expiringItems.length} Items`;
   }
 }
 
@@ -267,44 +189,31 @@ function renderRecentPurchases() {
   if (!elements.recentPurchasesList) return;
 
   const studentPurchases = state.purchases
-    .filter((purchase) => {
-      const purchaseStudentId = purchase.student_id ?? purchase.studentId;
-      return String(purchaseStudentId) === String(state.currentStudentId);
-    })
-    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
-    .slice(0, 3);
+    .filter((p) => String(p.student_id) === String(state.currentStudentId))
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
 
   if (!studentPurchases.length) {
     elements.recentPurchasesList.innerHTML = `
       <div class="activity-item">
         <div class="activity-info">
           <h4>No purchases yet</h4>
-          <p>Add a purchase to see your recent spending here.</p>
+          <p>Add a purchase to start tracking your spending.</p>
         </div>
-        <span class="tag sand">Empty</span>
       </div>
     `;
     return;
   }
 
-  elements.recentPurchasesList.innerHTML = studentPurchases.map((purchase) => {
-    const ingredientName = getIngredientName(purchase.ingredient_id ?? purchase.ingredientId);
-    const storeName = getStoreName(purchase.store_id ?? purchase.storeId);
-
-    return `
-      <div class="activity-item">
-        <div class="activity-info">
-          <h4>Purchased ${escapeHtml(ingredientName)}</h4>
-          <p>
-            Added from ${escapeHtml(storeName)} ·
-            ${escapeHtml(String(purchase.quantity ?? ""))} ${escapeHtml(String(purchase.unit ?? ""))} ·
-            ${escapeHtml(formatDate(purchase.date))}
-          </p>
-        </div>
-        <span class="tag sand">${formatCurrency(purchase.price)}</span>
+  elements.recentPurchasesList.innerHTML = studentPurchases.map((p) => `
+    <div class="activity-item">
+      <div class="activity-info">
+        <h4>Ingredient ID: ${p.ingredient_id}</h4>
+        <p>${p.quantity} ${p.unit} • ${p.date}</p>
       </div>
-    `;
-  }).join("");
+      <strong>$${Number(p.price).toFixed(2)}</strong>
+    </div>
+  `).join("");
 }
 
 function renderPantryAlerts() {
@@ -313,100 +222,146 @@ function renderPantryAlerts() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const alertItems = state.pantryItems
-    .map((item) => {
-      const expiration = new Date(item.expiration_date || item.expirationDate || "");
-      expiration.setHours(0, 0, 0, 0);
+  const threeDaysLater = new Date(today);
+  threeDaysLater.setDate(today.getDate() + 3);
 
-      const diffMs = expiration - today;
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const alerts = state.pantryItems
+    .filter((item) => {
+      const rawDate = String(item.expiration_date).slice(0, 10);
+      const [year, month, day] = rawDate.split("-").map(Number);
 
-      return {
-        ...item,
-        diffDays
-      };
+      const exp = new Date(year, month - 1, day);
+      exp.setHours(0, 0, 0, 0);
+
+      return exp <= threeDaysLater;
     })
-    .filter((item) => !Number.isNaN(item.diffDays) && item.diffDays <= 7)
-    .sort((a, b) => a.diffDays - b.diffDays)
-    .slice(0, 3);
+    .sort((a, b) => {
+      const dateA = String(a.expiration_date).slice(0, 10);
+      const dateB = String(b.expiration_date).slice(0, 10);
+      return dateA.localeCompare(dateB);
+    })
+    .slice(0, 5);
 
-  setText(elements.expiringCountHero, `${alertItems.length} Items`);
-
-  if (!alertItems.length) {
+  if (!alerts.length) {
     elements.pantryAlertsList.innerHTML = `
       <div class="activity-item">
         <div class="activity-info">
           <h4>No pantry alerts</h4>
-          <p>No pantry items are close to expiration.</p>
+          <p>No items are close to expiration.</p>
         </div>
-        <span class="tag teal">Good</span>
       </div>
     `;
     return;
   }
 
-  elements.pantryAlertsList.innerHTML = alertItems.map((item) => {
-    const ingredientName = getIngredientName(item.ingredient_id ?? item.ingredientId);
-    const label =
-      item.diffDays <= 2 ? "Urgent" :
-      item.diffDays <= 4 ? "Soon" :
-      "Watch";
+  elements.pantryAlertsList.innerHTML = alerts.map((item) => {
+    const rawDate = String(item.expiration_date).slice(0, 10);
+    const [year, month, day] = rawDate.split("-").map(Number);
+
+    const exp = new Date(year, month - 1, day);
+    exp.setHours(0, 0, 0, 0);
+
+    const status = exp < today ? "Expired" : "Expiring Soon";
 
     return `
       <div class="activity-item">
         <div class="activity-info">
-          <h4>${escapeHtml(ingredientName)} expires soon</h4>
-          <p>Use within ${item.diffDays} day${item.diffDays === 1 ? "" : "s"}.</p>
+          <h4>Ingredient ID: ${item.ingredient_id}</h4>
+          <p>${status} • ${rawDate}</p>
         </div>
-        <span class="tag ${item.diffDays <= 2 ? "red" : "sand"}">${label}</span>
+        <strong>${item.quantity} ${item.unit}</strong>
       </div>
     `;
   }).join("");
 }
 
-function getIngredientName(ingredientId) {
-  const found = state.ingredients.find((ingredient) => {
-    const id = ingredient.ingredient_id ?? ingredient.ingredientId;
-    return String(id) === String(ingredientId);
+function renderRecommendedMeals() {
+  if (!elements.recommendedMealsList) return;
+
+  const pantryIds = new Set(state.pantryItems.map((item) => String(item.ingredient_id)));
+
+  const scoredRecipes = state.recipes.map((recipe) => {
+    const recipeId = String(recipe.recipe_id);
+    const ingredients = state.recipeIngredients.filter(
+      (ri) => String(ri.recipe_id) === recipeId
+    );
+
+    const total = ingredients.length || 1;
+    const matched = ingredients.filter((ri) => pantryIds.has(String(ri.ingredient_id))).length;
+
+    return {
+      ...recipe,
+      pantryMatch: matched / total
+    };
   });
 
-  return found?.name || `Ingredient ${ingredientId ?? ""}`;
+  const topRecipes = scoredRecipes
+    .sort((a, b) => b.pantryMatch - a.pantryMatch)
+    .slice(0, 5);
+
+  if (!topRecipes.length) {
+    elements.recommendedMealsList.innerHTML = `
+      <div class="meal-item">
+        <div class="meal-info">
+          <h4>No recommended meals yet</h4>
+          <p>Add recipes and pantry items to see suggestions.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  elements.recommendedMealsList.innerHTML = topRecipes.map((recipe) => `
+    <div class="meal-item">
+      <div class="meal-info">
+        <h4>${recipe.name}</h4>
+        <p>${recipe.type} • ${recipe.total_time_prep} min</p>
+      </div>
+      <strong>${Math.round(recipe.pantryMatch * 100)}%</strong>
+    </div>
+  `).join("");
 }
 
-function getStoreName(storeId) {
-  const found = state.stores.find((store) => {
-    const id = store.store_id ?? store.storeId;
-    return String(id) === String(storeId);
-  });
+async function handleAdvancedSearch() {
+  try {
+    const maxTime = elements.maxTimeInput.value || 9999;
+    const maxCost = elements.maxCostInput.value || 9999;
+    const studentId = state.currentStudentId;
 
-  return found?.name || `Store ${storeId ?? ""}`;
-}
+    const response = await fetch(
+      `http://localhost:3000/api/advanced-meals?student_id=${encodeURIComponent(studentId)}&max_time=${encodeURIComponent(maxTime)}&max_budget=${encodeURIComponent(maxCost)}`
+    );
 
-function setText(element, value) {
-  if (element) {
-    element.textContent = value;
+    const data = await response.json();
+    renderAdvancedMeals(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Advanced search error:", error);
+    if (elements.advancedList) {
+      elements.advancedList.innerHTML = `<p>Error loading meals.</p>`;
+    }
   }
 }
 
-function formatCurrency(value) {
-  const number = Number(value || 0);
-  return `$${number.toFixed(2)}`;
-}
+function renderAdvancedMeals(recipes) {
+  if (!elements.advancedList) return;
 
-function formatDate(value) {
-  if (!value) return "No date";
+  if (!recipes.length) {
+    elements.advancedList.innerHTML = `
+      <p>No meals match your budget and time.</p>
+    `;
+    return;
+  }
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-
-  return date.toLocaleDateString();
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+  elements.advancedList.innerHTML = recipes.map(r => `
+    <div class="meal-item">
+      <div class="meal-info">
+        <h4>${r.name}</h4>
+        <p>
+          Time: ${r.total_time_prep} min •
+          Pantry Match: ${r.matched_ingredients}/${r.total_ingredients}
+        </p>
+      </div>
+      <strong>$${Number(r.cost_to_buy_missing || 0).toFixed(2)}</strong>
+    </div>
+  `).join("");
 }

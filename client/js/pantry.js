@@ -55,7 +55,11 @@ function handleSearch(e) {
 
 async function loadPantries() {
   try {
-    const pantries = await pantryAPI.getAll();
+    const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
+    const studentId = currentStudent?.student_id;
+    
+    const pantries = await pantryAPI.getByStudentId(studentId);
+    
     state.pantries = Array.isArray(pantries) ? pantries : [];
     state.filteredPantries = [...state.pantries];
     renderPantryTable();

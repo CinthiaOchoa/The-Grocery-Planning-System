@@ -366,13 +366,23 @@ app.put("/api/ingredients/:id", async (req, res) => {
 // PANTRY ROUTES
 // ======================
 
-// GET all pantries
-app.get("/api/pantries", async (req, res) => {
+// GET pantries by student
+app.get("/api/pantries/student/:studentId", async (req, res) => {
+  const { studentId } = req.params;
+
   try {
-    const [rows] = await pool.query("SELECT * FROM pantry ORDER BY pantry_id");
+    const [rows] = await pool.query(
+      `SELECT p.*
+       FROM pantry p
+       JOIN student_pantry sp ON p.pantry_id = sp.pantry_id
+       WHERE sp.student_id = ?
+       ORDER BY p.pantry_id`,
+      [studentId]
+    );
+
     res.json(rows);
   } catch (error) {
-    console.error("Get pantries error:", error);
+    console.error("Get pantries by student error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -413,6 +423,35 @@ app.post("/api/pantries", async (req, res) => {
 // ======================
 // PANTRY ITEM ROUTES
 // ======================
+
+// GET pantry items by student
+app.get("/api/pantry-items/student/:studentId", async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+         pi.pantry_item_id,
+         pi.pantry_id,
+         pi.ingredient_id,
+         pi.unit,
+         pi.date_added,
+         pi.expiration_date,
+         pi.quantity
+       FROM pantry_item pi
+       JOIN student_pantry sp
+         ON pi.pantry_id = sp.pantry_id
+       WHERE sp.student_id = ?
+       ORDER BY pi.expiration_date ASC, pi.pantry_item_id ASC`,
+      [studentId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get pantry items by student error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // GET pantry items by pantry
 app.get("/api/pantry-items/pantry/:pantryId", async (req, res) => {
@@ -617,13 +656,23 @@ app.get("/api/recipe-ingredients", async (req, res) => {
   const { recipe_id } = req.query;
 
   try {
-    const [rows] = await pool.query(
-      `SELECT recipe_id, ingredient_id, amount, unit
-       FROM recipe_ingredients
-       WHERE recipe_id = ?
-       ORDER BY ingredient_id`,
-      [recipe_id]
-    );
+    let rows;
+
+    if (recipe_id) {
+      [rows] = await pool.query(
+        `SELECT recipe_id, ingredient_id, amount, unit
+         FROM recipe_ingredients
+         WHERE recipe_id = ?
+         ORDER BY ingredient_id`,
+        [recipe_id]
+      );
+    } else {
+      [rows] = await pool.query(
+        `SELECT recipe_id, ingredient_id, amount, unit
+         FROM recipe_ingredients
+         ORDER BY recipe_id, ingredient_id`
+      );
+    }
 
     res.json(rows);
   } catch (error) {
@@ -803,9 +852,142 @@ app.delete("/api/recipe-steps/:recipeId/:stepNumber", async (req, res) => {
   }
 });
 
+// ======================
+// ADVANCED MEAL FINDER
+// ======================
+app.get("/api/advanced-meals", async (req, res) => {
+  const { student_id, max_time, max_budget } = req.query;
 
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        r.recipe_id,
+        r.name,
+        r.total_time_prep,
 
+        COUNT(ri.ingredient_id) AS total_ingredients,
 
+        SUM(
+          CASE
+            WHEN pi.ingredient_id IS NOT NULL THEN 1
+            ELSE 0
+          END
+        ) AS matched_ingredients,
+
+        COALESCE(
+          SUM(
+            CASE 
+              WHEN pi.ingredient_id IS NULL THEN COALESCE((
+                SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * ri.amount
+                FROM purchased_ingredient pi2
+                WHERE pi2.ingredient_id = ri.ingredient_id
+                ORDER BY pi2.date DESC, pi2.purchase_id DESC
+                LIMIT 1
+              ), 0)
+              ELSE 0 
+            END
+          ),
+          0
+        ) AS cost_to_buy_missing
+
+      FROM recipe r
+      JOIN recipe_ingredients ri
+        ON r.recipe_id = ri.recipe_id
+
+      LEFT JOIN pantry_item pi
+        ON ri.ingredient_id = pi.ingredient_id
+       AND pi.pantry_id IN (
+          SELECT pantry_id
+          FROM student_pantry
+          WHERE student_id = ?
+       )
+
+      GROUP BY r.recipe_id, r.name, r.total_time_prep
+
+      HAVING r.total_time_prep <= ?
+         AND cost_to_buy_missing <= ?
+
+      ORDER BY matched_ingredients DESC,
+               cost_to_buy_missing ASC,
+               r.total_time_prep ASC
+    `, [student_id, max_time, max_budget]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Advanced meals error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET pantry by student
+app.get("/api/pantries/student/:studentId", async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.*
+       FROM pantry p
+       JOIN student_pantry sp ON p.pantry_id = sp.pantry_id
+       WHERE sp.student_id = ?
+       LIMIT 1`,
+      [studentId]
+    );
+
+    if (rows.length === 0) {
+      return res.json(null);
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Get pantry by student error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET all purchases
+app.get("/api/purchases", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT *
+       FROM purchased_ingredient
+       ORDER BY date DESC, purchase_id DESC`
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get all purchases error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET pantry items by student
+app.get("/api/pantry-items/student/:studentId", async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+         pi.pantry_item_id,
+         pi.pantry_id,
+         pi.ingredient_id,
+         pi.unit,
+         pi.date_added,
+         pi.expiration_date,
+         pi.quantity
+       FROM pantry_item pi
+       JOIN student_pantry sp
+         ON pi.pantry_id = sp.pantry_id
+       WHERE sp.student_id = ?
+       ORDER BY pi.expiration_date ASC, pi.pantry_item_id ASC`,
+      [studentId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get pantry items by student error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 //DONT MOVE
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");

@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="../css/tables.css">
 
   <style>
-
-
     .dashboard-layout {
       display: grid;
       grid-template-columns: 270px 1fr;
@@ -26,30 +24,6 @@
       gap: 18px;
       flex-wrap: wrap;
     }
-
-    .palette {
-      display: flex;
-      gap: 8px;
-      padding: 10px;
-      background: rgba(255,255,255,0.75);
-      border-radius: 16px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .palette span {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: inline-block;
-      border: 2px solid rgba(255,255,255,0.85);
-    }
-
-    .palette span:nth-child(1) { background: #044F5F; }
-    .palette span:nth-child(2) { background: #165E6E; }
-    .palette span:nth-child(3) { background: #89322A; }
-    .palette span:nth-child(4) { background: #AD5247; }
-    .palette span:nth-child(5) { background: #DF7B5D; }
-    .palette span:nth-child(6) { background: #EDC385; }
 
     .hero-card {
       border-radius: var(--radius-xl);
@@ -126,7 +100,8 @@
       gap: 20px;
     }
 
-    .budget-box {
+    .budget-box,
+    .advanced-box {
       background: linear-gradient(135deg, #fff8ef 0%, #fff2e0 100%);
       border: 1px solid #f2dcc0;
       border-radius: 18px;
@@ -189,10 +164,43 @@
     }
 
     .meal-info p,
-    .activity-info p {
+    .activity-info p,
+    .advanced-box p {
       color: var(--text-soft);
       font-size: 0.9rem;
       line-height: 1.45;
+    }
+
+    .advanced-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-top: 14px;
+    }
+
+    .advanced-field label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--deep-teal);
+    }
+
+    .advanced-field input {
+      width: 100%;
+    }
+
+    .advanced-results {
+      margin-top: 16px;
+    }
+
+    .advanced-empty {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px dashed #d6bea1;
     }
 
     .quick-actions {
@@ -223,7 +231,8 @@
       }
 
       .content-grid,
-      .hero-card {
+      .hero-card,
+      .advanced-controls {
         grid-template-columns: 1fr;
       }
     }
@@ -274,11 +283,10 @@
       <header class="topbar">
         <div>
           <h2>Dashboard</h2>
-          <p>Welcome back. Here is a quick view of your meals, pantry, recipes, and spending.</p>
+          <p>Welcome back. Here is a quick view of your meals, pantry, recipes, spending, and smart meal suggestions.</p>
         </div>
 
         <div class="topbar-right">
-
           <div class="profile-pill">
             <div class="avatar-small" id="topbar-avatar">SU</div>
             <div>
@@ -291,9 +299,9 @@
 
       <section class="hero-card hero-box">
         <div class="hero-content">
-          <h3>Plan smarter meals with your pantry and budget in one place</h3>
+          <h3>Plan smarter meals with your pantry, budget, and cooking time in one place</h3>
           <p>
-            Use your dashboard to quickly view remaining budget, pantry items, nearby stores, and recommended meals based on your available ingredients.
+            Use your dashboard to see your remaining budget, pantry alerts, recent purchases, and a smart meal finder that recommends recipes based on what you already have and what you still need to buy.
           </p>
 
           <div class="hero-buttons">
@@ -320,23 +328,23 @@
           <h4 id="dashboard-budget-value">$0.00</h4>
           <p>Total available budget for groceries this week.</p>
         </article>
-      
+
         <article class="summary-card stat-card">
           <small>Pantry Items</small>
           <h4 id="dashboard-pantry-count">0</h4>
           <p>Ingredients currently saved in your pantry list.</p>
         </article>
-      
+
         <article class="summary-card stat-card">
           <small>Recipes Saved</small>
           <h4 id="dashboard-recipe-count">0</h4>
-          <p>Recipes you can review based on what you have.</p>
+          <p>Recipes available to compare with your pantry.</p>
         </article>
-      
+
         <article class="summary-card stat-card">
           <small>Stores Nearby</small>
           <h4 id="dashboard-store-count">0</h4>
-          <p>Available stores based on your zip code and search.</p>
+          <p>Stores available in your dataset.</p>
         </article>
       </section>
 
@@ -345,7 +353,7 @@
           <article class="card">
             <div class="card-header">
               <h3>Weekly Budget Summary</h3>
-              <a href="stores-list.html">View Purchases</a>
+              <a href="stores-list.html">View Stores</a>
             </div>
 
             <div class="budget-box">
@@ -361,8 +369,36 @@
                 <div class="progress-fill" id="dashboard-budget-progress"></div>
               </div>
             </div>
+          </article>
 
-          <div class="activity-list" id="dashboard-pantry-alerts-list"></div>
+          <article class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <h3>Advanced Meal Finder</h3>
+              <a href="recipes-list.html">All Recipes</a>
+            </div>
+
+            <div class="advanced-box">
+              <p>
+                This section uses your pantry items, your latest ingredient purchase prices, your recipe ingredients, and each recipe prep time to find meals that fit your time and budget.
+              </p>
+
+              <div class="advanced-controls">
+                <div class="advanced-field">
+                  <label for="advanced-max-time">Max Prep Time (minutes)</label>
+                  <input id="advanced-max-time" type="number" min="0" placeholder="30">
+                </div>
+
+                <div class="advanced-field">
+                  <label for="advanced-max-budget">Max Cost to Buy Missing</label>
+                  <input id="advanced-max-budget" type="number" min="0" step="0.01" placeholder="10.00">
+                </div>
+
+                <button id="advanced-apply-btn" class="btn-primary" type="button">Find Meals</button>
+              </div>
+
+              <div class="activity-list advanced-results" id="dashboard-advanced-results-list"></div>
+            </div>
+          </article>
 
           <article class="card" style="margin-top: 20px;">
             <div class="card-header">
@@ -377,6 +413,24 @@
         <div>
           <article class="card">
             <div class="card-header">
+              <h3>Recent Purchases</h3>
+              <a href="stores-list.html">Manage</a>
+            </div>
+
+            <div class="activity-list" id="dashboard-recent-purchases-list"></div>
+          </article>
+
+          <article class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <h3>Pantry Alerts</h3>
+              <a href="pantry-list.html">Manage</a>
+            </div>
+
+            <div class="activity-list" id="dashboard-pantry-alerts-list"></div>
+          </article>
+
+          <article class="card" style="margin-top: 20px;">
+            <div class="card-header">
               <h3>Quick Actions</h3>
             </div>
 
@@ -388,43 +442,11 @@
               <a class="quick-btn" href="profile.html">View Profile</a>
             </div>
           </article>
-
-          <article class="card" style="margin-top: 20px;">
-            <div class="card-header">
-              <h3>Pantry Alerts</h3>
-              <a href="pantry-list.html">Manage</a>
-            </div>
-
-            <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Milk expires soon</h4>
-                  <p>Use within 2 days.</p>
-                </div>
-                <span class="tag red">Urgent</span>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Spinach expires soon</h4>
-                  <p>Use within 3 days.</p>
-                </div>
-                <span class="tag sand">Soon</span>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-info">
-                  <h4>Chicken in pantry</h4>
-                  <p>Enough for 2 more meals.</p>
-                </div>
-                <span class="tag teal">Ready</span>
-              </div>
-            </div>
-          </article>
         </div>
       </section>
     </main>
   </div>
+
   <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
