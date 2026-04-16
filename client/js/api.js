@@ -108,32 +108,21 @@ export const authAPI = {
 // PANTRY API
 // ======================
 export const pantryAPI = {
-  async getAllPantries() {
-    return [];
+  async getAll() {
+    const response = await fetch(`${BASE_URL}/pantries`);
+    return handleResponse(response);
   },
 
-  async getPantryById(pantryId) {
-    return null;
-  },
+  async create(pantryData) {
+    const response = await fetch(`${BASE_URL}/pantries`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(pantryData)
+    });
 
-  async getPantryByStudentId(studentId) {
-    return null;
-  },
-
-  async createPantry(pantryData) {
-    notImplemented("Create pantry");
-  },
-
-  async assignPantryToStudent({ pantryId, studentId }) {
-    notImplemented("Assign pantry to student");
-  },
-
-  async updatePantry(pantryId, updatedData) {
-    notImplemented("Update pantry");
-  },
-
-  async deletePantry(pantryId) {
-    notImplemented("Delete pantry");
+    return handleResponse(response);
   }
 };
 
@@ -141,63 +130,59 @@ export const pantryAPI = {
 // INGREDIENT API
 // ======================
 export const ingredientAPI = {
-  async getAllIngredients() {
-    return [];
-  },
-
-  async getIngredientById(ingredientId) {
-    return null;
+  async getAll() {
+    const response = await fetch(`${BASE_URL}/ingredients`);
+    return handleResponse(response);
   },
 
   async getById(ingredientId) {
-    const response = await fetch(`/api/ingredients/${encodeURIComponent(ingredientId)}`);
-    if (!response.ok) throw new Error("Failed to fetch ingredient.");
-    return response.json();
+    const response = await fetch(`${BASE_URL}/ingredients/${encodeURIComponent(ingredientId)}`);
+    return handleResponse(response);
   },
 
-  async searchIngredients(filters = {}) {
-    return [];
+  async create(ingredientData) {
+    const response = await fetch(`${BASE_URL}/ingredients`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(ingredientData)
+    });
+
+    return handleResponse(response);
   },
 
-  async createIngredient(ingredientData) {
-    notImplemented("Create ingredient");
-  },
+  async update(ingredientId, updatedData) {
+    const response = await fetch(`${BASE_URL}/ingredients/${encodeURIComponent(ingredientId)}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updatedData)
+    });
 
-  async updateIngredient(ingredientId, updatedData) {
-    notImplemented("Update ingredient");
-  },
-
-  async deleteIngredient(ingredientId) {
-    notImplemented("Delete ingredient");
+    return handleResponse(response);
   }
 };
-
 // ======================
 // PANTRY ITEM API
 // ======================
 export const pantryItemAPI = {
-  async getAllPantryItems() {
-    return [];
+  async getByPantryId(pantryId) {
+    const response = await fetch(`${BASE_URL}/pantry-items/pantry/${encodeURIComponent(pantryId)}`);
+    return handleResponse(response);
   },
 
-  async getPantryItemsByPantryId(pantryId) {
-    return [];
-  },
+  async create(pantryItemData) {
+    const response = await fetch(`${BASE_URL}/pantry-items`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(pantryItemData)
+    });
 
-  async getPantryItemByKeys({ pantryId, ingredientId }) {
-    return null;
-  },
-
-  async addPantryItem(pantryItemData) {
-    notImplemented("Add pantry item");
-  },
-
-  async updatePantryItem(pantryId, ingredientId, updatedData) {
-    notImplemented("Update pantry item");
-  },
-
-  async deletePantryItem(pantryId, ingredientId) {
-    notImplemented("Delete pantry item");
+    return handleResponse(response);
   }
 };
 
@@ -241,32 +226,35 @@ export const storeAPI = {
 // PURCHASED INGREDIENT API
 // ======================
 export const purchaseAPI = {
-  async getAllPurchases() {
-    return [];
-  },
-
-  async getPurchaseById(purchaseId) {
-    return null;
-  },
-
-  async getPurchasesByStudentId(studentId) {
-    return [];
-  },
-
-  async getPurchasesByStoreId(storeId) {
-    return [];
+  async getPurchasesByStoreIdAndStudentId(storeId, studentId) {
+    const response = await fetch(
+      `${BASE_URL}/purchases/store/${encodeURIComponent(storeId)}/student/${encodeURIComponent(studentId)}`
+    );
+    return handleResponse(response);
   },
 
   async createPurchase(purchaseData) {
-    notImplemented("Create purchased ingredient record");
+    const response = await fetch(`${BASE_URL}/purchases`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(purchaseData)
+    });
+
+    return handleResponse(response);
   },
 
   async updatePurchase(purchaseId, updatedData) {
-    notImplemented("Update purchased ingredient record");
-  },
+    const response = await fetch(`${BASE_URL}/purchases/${encodeURIComponent(purchaseId)}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updatedData)
+    });
 
-  async deletePurchase(purchaseId) {
-    notImplemented("Delete purchased ingredient record");
+    return handleResponse(response);
   }
 };
 

@@ -82,6 +82,12 @@
           <h2>Stores List</h2>
           <p>Browse stores and open purchase actions for each store.</p>
         </div>
+        <div class="profile-pill">
+          <div class="avatar-small" id="topbar-avatar">SU</div>
+          <div>
+            <small>Logged in as</small>
+            <strong id="topbar-name">Student User</strong>
+          </div>
       </header>
 
       <section class="card">
@@ -115,10 +121,6 @@
             <tbody id="stores-table-body"></tbody>
           </table>
         </div>
-
-        <p class="stores-note">
-          These example rows are only for testing the buttons. When your API is connected, real store data will replace them.
-        </p>
       </section>
     </main>
   </div>
@@ -127,5 +129,11 @@
     document.body.dataset.theme = savedTheme;
   </script>
   <script type="module" src="../js/stores.js"></script>
+  <script type="module">
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  </script>
 </body>
 </html>

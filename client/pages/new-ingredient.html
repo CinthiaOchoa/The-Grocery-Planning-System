@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tables.css">
-  <script src="../js/ingredients.js" defer></script>
+  <script type="module" src="../js/ingredients.js" defer></script>
 
   <style>
     /* New-ingredient-only styles */
@@ -92,12 +92,12 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
           </div>
-        </div>
+          </div>
       </header>
 
       <section class="page-grid">
@@ -164,5 +164,13 @@
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
+
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
+
 </body>
 </html>

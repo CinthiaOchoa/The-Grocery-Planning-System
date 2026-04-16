@@ -61,12 +61,12 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
           </div>
-        </div>
+          </div>
       </header>
 
       <section class="card">
@@ -97,10 +97,6 @@
           </table>
 
           <div class="pantry-items-empty-state">
-            <div>
-              <strong>No pantry items loaded yet.</strong><br />
-              This table will display the pantry items that belong to the selected pantry.
-            </div>
           </div>
         </div>
       </section>
@@ -123,5 +119,13 @@
     document.body.dataset.theme = savedTheme;
   </script>
   <script type="module" src="../js/pantry-items.js"></script>
+
+  <script type="module">
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  </script>
+
 </body>
 </html>

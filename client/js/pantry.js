@@ -1,82 +1,68 @@
-// pantry.js
-import { loadCurrentStudentUI } from "./currentStudent.js";
-import {
-  $,
-  onDelegate
-} from "./utils.js";
+import { pantryAPI } from "./api.js";
+import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
+import { $, onDelegate } from "./utils.js";
 
-// ============================
-// PAGE STATE
-// ============================
 const state = {
-  pantries: []
+  pantries: [],
+  filteredPantries: []
 };
 
-// ============================
-// DOM ELEMENTS
-// ============================
 const elements = {
   tableBody: null
 };
 
-// ============================
-// INIT
-// ============================
 document.addEventListener("DOMContentLoaded", initPantryPage);
 
-function initPantryPage() {
+async function initPantryPage() {
+  requireAuth();
+  loadCurrentStudentUI();
   cacheElements();
-  loadPantries();
   bindEvents();
+  await loadPantries();
 }
 
-//Delete
-function bindEvents() {
-  onDelegate(elements.tableBody, "click", '[data-action="delete"]', handleDeletePantry);
-}
-
-function handleDeletePantry(event, button) {
-  const pantryId = button.dataset.pantryId;
-
-  state.pantries = state.pantries.filter((p) => p.pantryId !== pantryId);
-
-  const savedPantries = JSON.parse(localStorage.getItem("pantries")) || [];
-  const updatedSavedPantries = savedPantries.filter((p) => p.pantryId !== pantryId);
-  localStorage.setItem("pantries", JSON.stringify(updatedSavedPantries));
-
-  renderPantryTable();
-}
 function cacheElements() {
   elements.tableBody = $("#pantryTableBody");
+  elements.searchInput = $("#pantry-search");
 }
 
-// ============================
-// LOAD / RENDER
-// ============================
-function loadPantries() {
-  const defaultPantries = [
-    {
-      pantryId: "P001",
-      type: "Fridge",
-      location: "Kitchen"
-    },
-    {
-      pantryId: "P002",
-      type: "Shelf",
-      location: "Pantry Room"
-    },
-    {
-      pantryId: "P003",
-      type: "Cabinet",
-      location: "Dining Area"
-    }
-  ];
+function bindEvents() {
+  if (elements.tableBody) {
+    onDelegate(elements.tableBody, "click", '[data-action="delete"]', handleDeletePantry);
+  }
+  if (elements.searchInput) {
+    elements.searchInput.addEventListener("input", handleSearch);
+  }
+}
 
-  const savedPantries = JSON.parse(localStorage.getItem("pantries")) || [];
+function handleSearch(e) {
+  const query = e.target.value.toLowerCase();
 
-  state.pantries = [...defaultPantries, ...savedPantries];
+  state.filteredPantries = state.pantries.filter((p) => {
+    const pantryId = (p.pantryId ?? p.pantry_id ?? "").toString().toLowerCase();
+    const type = (p.type ?? "").toLowerCase();
+    const location = (p.location ?? "").toLowerCase();
+
+    return (
+      pantryId.includes(query) ||
+      type.includes(query) ||
+      location.includes(query)
+    );
+  });
 
   renderPantryTable();
+}
+
+async function loadPantries() {
+  try {
+    const pantries = await pantryAPI.getAll();
+    state.pantries = Array.isArray(pantries) ? pantries : [];
+    state.filteredPantries = [...state.pantries];
+    renderPantryTable();
+  } catch (error) {
+    console.error("Failed to load pantries:", error);
+    renderPantryTable();
+  }
 }
 
 function renderPantryTable() {
@@ -84,7 +70,7 @@ function renderPantryTable() {
 
   elements.tableBody.innerHTML = "";
 
-  if (!state.pantries.length) {
+  if (!state.filteredPantries.length) {
     elements.tableBody.innerHTML = `
       <tr>
         <td colspan="4">No pantry records available.</td>
@@ -93,29 +79,30 @@ function renderPantryTable() {
     return;
   }
 
-  state.pantries.forEach((pantry) => {
+  state.filteredPantries.forEach((pantry) => {
+    const pantryId = pantry.pantryId ?? pantry.pantry_id ?? "";
+    const type = pantry.type ?? "";
+    const location = pantry.location ?? "";
+
     const row = document.createElement("tr");
 
     row.innerHTML = `
-      <td>${pantry.pantryId}</td>
-      <td>${pantry.type}</td>
-      <td>${pantry.location}</td>
+      <td>${pantryId}</td>
+      <td>${type}</td>
+      <td>${location}</td>
       <td>
-      <div class="action-group">
-        <a href="pantry-items.html?pantryId=${pantry.pantryId}" class="btn-secondary">
-          See Pantry Items
-        </a>
-
-        <button
-          class="btn btn-delete"
-          data-action="delete"
-          data-pantry-id="${pantry.pantryId}">
-          Delete
-        </button>
-      </div>
-    </td>
+        <div class="action-group">
+          <a href="pantry-items.html?pantryId=${encodeURIComponent(pantryId)}" class="btn-secondary">
+            See Pantry Items
+          </a>
+        </div>
+      </td>
     `;
 
     elements.tableBody.appendChild(row);
   });
+}
+
+function handleDeletePantry() {
+  alert("Delete pantry can be added later. For now we are only connecting pantry list + create pantry.");
 }

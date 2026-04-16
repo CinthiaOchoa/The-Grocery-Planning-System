@@ -54,7 +54,7 @@
           <a class="nav-link active" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
           <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="#" onclick="logout()"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
     </aside>
@@ -67,12 +67,12 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
           </div>
-        </div>
+          </div>
       </header>
 
       <section class="card">
@@ -95,13 +95,16 @@
           <table>
             <thead>
               <tr>
-                <th>Store ID</th>
-                <th>Ingredient ID</th>
-                <th>Student ID</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Unit</th>
+                <tr>
+                  <th>Store ID</th>
+                  <th>Ingredient ID</th>
+                  <th>Student ID</th>
+                  <th>Date</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Actions</th>
+                </tr>
               </tr>
             </thead>
             <tbody id="storePurchasesTableBody"></tbody>
@@ -118,86 +121,159 @@
     </main>
   </div>
 
-  <script>
-    const PURCHASES_STORAGE_KEY = "purchased_ingredients";
-
+  <script type="module">
+    import { purchaseAPI } from "../js/api.js";
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+    import { logout } from "../js/auth.js";
+  
+    window.logout = logout;
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  
     const params = new URLSearchParams(window.location.search);
     const selectedStoreId = params.get("store_id") || "";
-
+  
+    const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
+    const currentStudentId = currentStudent?.student_id || "";
+  
     const addPurchaseBtn = document.getElementById("addPurchaseBtn");
     const subtitle = document.getElementById("storePurchasesSubtitle");
     const tableBody = document.getElementById("storePurchasesTableBody");
     const emptyState = document.getElementById("purchaseEmptyState");
     const searchInput = document.getElementById("purchase-search");
-
+  
     if (selectedStoreId) {
       addPurchaseBtn.href = `add-purchase.html?store_id=${encodeURIComponent(selectedStoreId)}`;
       subtitle.textContent = `Viewing purchase history for Store ID: ${selectedStoreId}`;
     } else {
       addPurchaseBtn.href = "add-purchase.html";
     }
-
-    function getSavedPurchases() {
-      const raw = localStorage.getItem(PURCHASES_STORAGE_KEY);
-      if (!raw) return [];
-      try {
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        return [];
-      }
+  
+    let allPurchases = [];
+  
+    function createPurchaseRow(purchase) {
+      return `
+        <tr>
+          <td>${purchase.store_id}</td>
+          <td>${purchase.ingredient_id}</td>
+          <td>${purchase.student_id}</td>
+          <td>${purchase.date ?? ""}</td>
+          <td>$${Number(purchase.price).toFixed(2)}</td>
+          <td>${purchase.quantity}</td>
+          <td>${purchase.unit ?? ""}</td>
+          <td>
+            <button
+              class="btn-link-action edit-purchase-btn"
+              data-purchase-id="${purchase.purchase_id}"
+              data-store-id="${purchase.store_id}"
+              data-ingredient-id="${purchase.ingredient_id}"
+              data-student-id="${purchase.student_id}"
+              data-date="${purchase.date ?? ""}"
+              data-price="${purchase.price}"
+              data-quantity="${purchase.quantity}"
+              data-unit="${purchase.unit ?? ""}"
+            >
+              Edit Purchase
+            </button>
+          </td>
+        </tr>
+      `;
     }
-
+  
     function renderPurchases() {
-      const allPurchases = getSavedPurchases();
-
-      let filteredPurchases = selectedStoreId
-        ? allPurchases.filter(purchase => purchase.store_id === selectedStoreId)
-        : allPurchases;
-
+      let filteredPurchases = [...allPurchases];
       const searchValue = searchInput.value.trim().toLowerCase();
-
+  
       if (searchValue) {
-        filteredPurchases = filteredPurchases.filter(purchase =>
+        filteredPurchases = filteredPurchases.filter((purchase) =>
           String(purchase.store_id).toLowerCase().includes(searchValue) ||
           String(purchase.ingredient_id).toLowerCase().includes(searchValue) ||
           String(purchase.student_id).toLowerCase().includes(searchValue) ||
-          String(purchase.unit).toLowerCase().includes(searchValue) ||
-          String(purchase.date).toLowerCase().includes(searchValue)
+          String(purchase.unit ?? "").toLowerCase().includes(searchValue) ||
+          String(purchase.date ?? "").toLowerCase().includes(searchValue)
         );
       }
-
+  
       tableBody.innerHTML = "";
-
+  
       if (filteredPurchases.length === 0) {
         emptyState.style.display = "flex";
         return;
       }
-
+  
       emptyState.style.display = "none";
-
-      filteredPurchases.forEach(purchase => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${purchase.store_id}</td>
-          <td>${purchase.ingredient_id}</td>
-          <td>${purchase.student_id}</td>
-          <td>${purchase.date}</td>
-          <td>$${Number(purchase.price).toFixed(2)}</td>
-          <td>${purchase.quantity}</td>
-          <td>${purchase.unit}</td>
-        `;
-        tableBody.appendChild(row);
-      });
+      tableBody.innerHTML = filteredPurchases.map(createPurchaseRow).join("");
     }
-
+  
+    async function loadPurchases() {
+      if (!selectedStoreId || !currentStudentId) {
+        emptyState.style.display = "flex";
+        return;
+      }
+  
+      try {
+        allPurchases = await purchaseAPI.getPurchasesByStoreIdAndStudentId(
+          selectedStoreId,
+          currentStudentId
+        );
+        renderPurchases();
+      } catch (error) {
+        console.error(error);
+        emptyState.style.display = "flex";
+      }
+    }
+  
+    tableBody.addEventListener("click", async (event) => {
+      const button = event.target.closest(".edit-purchase-btn");
+      if (!button) return;
+  
+      const purchaseId = button.dataset.purchaseId;
+  
+      const newDate = prompt("Edit date (YYYY-MM-DD):", button.dataset.date);
+      if (newDate === null) return;
+  
+      const newPrice = prompt("Edit price:", button.dataset.price);
+      if (newPrice === null) return;
+  
+      const newQuantity = prompt("Edit quantity:", button.dataset.quantity);
+      if (newQuantity === null) return;
+  
+      const newUnit = prompt("Edit unit:", button.dataset.unit);
+      if (newUnit === null) return;
+  
+      try {
+        await purchaseAPI.updatePurchase(purchaseId, {
+          store_id: button.dataset.storeId,
+          ingredient_id: button.dataset.ingredientId,
+          student_id: button.dataset.studentId,
+          date: newDate,
+          price: newPrice,
+          quantity: newQuantity,
+          unit: newUnit
+        });
+  
+        await loadPurchases();
+        alert("Purchase updated successfully");
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Could not update purchase");
+      }
+    });
+  
     searchInput.addEventListener("input", renderPurchases);
-
-    renderPurchases();
+  
+    loadPurchases();
   </script>
   <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
+  </script>
+  <script type="module">
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
   </script>
 </body>
 </html>

@@ -174,5 +174,11 @@
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
+  <script type="module">
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  </script>
 </body>
 </html>

@@ -49,15 +49,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-function initSettingsPage() {
-  requireAuth();
-  cacheElements();
-  bindEvents();
-  initializeState();
-  loadCurrentStudentUI();
-  loadFrontendSettings();
-}
-
 app.post("/api/students", async (req, res) => {
   const {
     name,
@@ -177,6 +168,309 @@ app.post("/api/stores", async (req, res) => {
   }
 });
 
+// ======================
+// PURCHASE ROUTES
+// ======================
+
+// GET purchases by store
+app.get("/api/purchases/store/:storeId/student/:studentId", async (req, res) => {
+  const { storeId, studentId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM purchased_ingredient WHERE store_id = ? AND student_id = ?",
+      [storeId, studentId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get purchases error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE purchase
+app.post("/api/purchases", async (req, res) => {
+  const {
+    store_id,
+    ingredient_id,
+    student_id,
+    date,
+    price,
+    quantity,
+    unit
+  } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO purchased_ingredient 
+      (store_id, ingredient_id, student_id, date, price, quantity, unit)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [store_id, ingredient_id, student_id, date, price, quantity, unit]
+    );
+
+    res.status(201).json({
+      purchase_id: result.insertId || null,
+      message: "Purchase created"
+    });
+  } catch (error) {
+    console.error("Create purchase error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// PURCHASE ROUTES
+// ======================
+
+// GET purchases by store + student
+app.get("/api/purchases/store/:storeId/student/:studentId", async (req, res) => {
+  const { storeId, studentId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT *
+       FROM purchased_ingredient
+       WHERE store_id = ? AND student_id = ?
+       ORDER BY date DESC, purchase_id DESC`,
+      [storeId, studentId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get purchases error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE purchase
+app.post("/api/purchases", async (req, res) => {
+  const {
+    store_id,
+    ingredient_id,
+    student_id,
+    date,
+    price,
+    quantity,
+    unit
+  } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO purchased_ingredient
+       (store_id, ingredient_id, student_id, date, price, quantity, unit)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [store_id, ingredient_id, student_id, date, price, quantity, unit]
+    );
+
+    const [rows] = await pool.query(
+      "SELECT * FROM purchased_ingredient WHERE purchase_id = ?",
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create purchase error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE purchase
+app.put("/api/purchases/:purchaseId", async (req, res) => {
+  const { purchaseId } = req.params;
+  const {
+    store_id,
+    ingredient_id,
+    student_id,
+    date,
+    price,
+    quantity,
+    unit
+  } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE purchased_ingredient
+       SET store_id = ?, ingredient_id = ?, student_id = ?, date = ?, price = ?, quantity = ?, unit = ?
+       WHERE purchase_id = ?`,
+      [store_id, ingredient_id, student_id, date, price, quantity, unit, purchaseId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    const [rows] = await pool.query(
+      "SELECT * FROM purchased_ingredient WHERE purchase_id = ?",
+      [purchaseId]
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Update purchase error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// INGREDIENT ROUTES
+// ======================
+
+// GET all ingredients
+app.get("/api/ingredients", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM ingredients ORDER BY ingredient_id");
+    res.json(rows);
+  } catch (error) {
+    console.error("Get ingredients error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE ingredient
+app.put("/api/ingredients/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    category,
+    protein,
+    calories,
+    nutrition_score
+  } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE ingredients
+       SET name = ?, category = ?, protein = ?, calories = ?, nutrition_score = ?
+       WHERE ingredient_id = ?`,
+      [name, category, protein, calories, nutrition_score, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Ingredient not found" });
+    }
+
+    const [rows] = await pool.query(
+      "SELECT * FROM ingredients WHERE ingredient_id = ?",
+      [id]
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Update ingredient error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// PANTRY ROUTES
+// ======================
+
+// GET all pantries
+app.get("/api/pantries", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM pantry ORDER BY pantry_id");
+    res.json(rows);
+  } catch (error) {
+    console.error("Get pantries error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE pantry
+app.post("/api/pantries", async (req, res) => {
+  const { pantry_id, type, location } = req.body;
+
+  try {
+    const [existing] = await pool.query(
+      "SELECT * FROM pantry WHERE pantry_id = ?",
+      [pantry_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        message: "Pantry ID already exists"
+      });
+    }
+
+    await pool.query(
+      "INSERT INTO pantry (pantry_id, type, location) VALUES (?, ?, ?)",
+      [pantry_id, type, location]
+    );
+
+    const [rows] = await pool.query(
+      "SELECT * FROM pantry WHERE pantry_id = ?",
+      [pantry_id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create pantry error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ======================
+// PANTRY ITEM ROUTES
+// ======================
+
+// GET pantry items by pantry
+app.get("/api/pantry-items/pantry/:pantryId", async (req, res) => {
+  const { pantryId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+       FROM pantry_item
+       WHERE pantry_id = ?
+       ORDER BY expiration_date ASC, ingredient_id ASC`,
+      [pantryId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Get pantry items error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CREATE pantry item
+app.post("/api/pantry-items", async (req, res) => {
+  const {
+    pantry_id,
+    ingredient_id,
+    unit,
+    date_added,
+    expiration_date,
+    quantity
+  } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO pantry_item
+       (pantry_id, ingredient_id, unit, date_added, expiration_date, quantity)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [pantry_id, ingredient_id, unit, date_added, expiration_date, quantity]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT pantry_id, ingredient_id, unit, date_added, expiration_date, quantity
+       FROM pantry_item
+       WHERE pantry_id = ? AND ingredient_id = ?
+       ORDER BY date_added DESC
+       LIMIT 1`,
+      [pantry_id, ingredient_id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create pantry item error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+//DONT MOVE
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });

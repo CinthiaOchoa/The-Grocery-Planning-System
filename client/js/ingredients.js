@@ -1,23 +1,22 @@
-// ingredients.js
-import { loadCurrentStudentUI } from "./currentStudent.js";
+import { ingredientAPI } from "./api.js";
+import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+  requireAuth();
+  loadCurrentStudentUI();
+
   const form = document.getElementById("newIngredientForm");
   const tableBody = document.getElementById("ingredientsTableBody");
   const emptyState = document.querySelector(".ingredients-empty-state");
+  const searchInput = document.getElementById("ingredient-search");
 
-  function getIngredients() {
-    return JSON.parse(localStorage.getItem("ingredients")) || [];
-  }
-
-  function saveIngredients(ingredients) {
-    localStorage.setItem("ingredients", JSON.stringify(ingredients));
-  }
+  let allIngredients = [];
 
   // =========================
   // NEW INGREDIENT PAGE
   // =========================
   if (form) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const ingredientId = document.getElementById("ingredient_id")?.value.trim();
@@ -32,31 +31,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const ingredients = getIngredients();
+      try {
+        await ingredientAPI.create({
+          ingredient_id: ingredientId,
+          name,
+          category,
+          protein: parseFloat(protein),
+          calories: parseInt(calories, 10),
+          nutrition_score: parseFloat(nutritionScore)
+        });
 
-      const alreadyExists = ingredients.some(
-        (ingredient) => String(ingredient.ingredient_id) === String(ingredientId)
-      );
-
-      if (alreadyExists) {
-        alert("Ingredient ID already exists. Please use a different ID.");
-        return;
+        alert("Ingredient saved successfully.");
+        window.location.href = "ingredients-dataset.html";
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Could not save ingredient.");
       }
-
-      const newIngredient = {
-        ingredient_id: ingredientId,
-        name: name,
-        category: category,
-        protein: parseFloat(protein),
-        calories: parseInt(calories, 10),
-        nutrition_score: parseFloat(nutritionScore)
-      };
-
-      ingredients.push(newIngredient);
-      saveIngredients(ingredients);
-
-      alert("Ingredient saved successfully.");
-      window.location.href = "ingredients-dataset.html";
     });
 
     form.addEventListener("reset", () => {
@@ -71,26 +61,115 @@ document.addEventListener("DOMContentLoaded", () => {
   // INGREDIENTS DATASET PAGE
   // =========================
   if (tableBody) {
-    const ingredients = getIngredients();
+    loadIngredientsTable();
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", renderIngredientsTable);
+  }
+
+  async function loadIngredientsTable() {
+    try {
+      allIngredients = await ingredientAPI.getAll();
+      renderIngredientsTable();
+    } catch (error) {
+      console.error("Failed to load ingredients:", error);
+      if (emptyState) {
+        emptyState.style.display = "flex";
+      }
+    }
+  }
+
+  function renderIngredientsTable() {
+    if (!tableBody) return;
+
+    const searchValue = searchInput?.value?.trim().toLowerCase() || "";
+
+    let filteredIngredients = [...allIngredients];
+
+    if (searchValue) {
+      filteredIngredients = filteredIngredients.filter((ingredient) =>
+        String(ingredient.ingredient_id ?? "").toLowerCase().includes(searchValue) ||
+        String(ingredient.name ?? "").toLowerCase().includes(searchValue) ||
+        String(ingredient.category ?? "").toLowerCase().includes(searchValue)
+      );
+    }
+
     tableBody.innerHTML = "";
 
-    ingredients.forEach((ingredient) => {
-      const row = document.createElement("tr");
+    if (filteredIngredients.length === 0) {
+      if (emptyState) emptyState.style.display = "flex";
+      return;
+    }
 
-      row.innerHTML = `
+    if (emptyState) emptyState.style.display = "none";
+
+    tableBody.innerHTML = filteredIngredients.map(createIngredientRow).join("");
+  }
+
+  function createIngredientRow(ingredient) {
+    return `
+      <tr>
         <td>${ingredient.ingredient_id ?? ""}</td>
         <td>${ingredient.name ?? ""}</td>
         <td>${ingredient.category ?? ""}</td>
         <td>${ingredient.protein ?? ""}</td>
         <td>${ingredient.calories ?? ""}</td>
         <td>${ingredient.nutrition_score ?? ""}</td>
-      `;
+        <td>
+          <button
+            class="btn-link-action edit-ingredient-btn"
+            data-ingredient-id="${ingredient.ingredient_id}"
+            data-name="${ingredient.name ?? ""}"
+            data-category="${ingredient.category ?? ""}"
+            data-protein="${ingredient.protein ?? ""}"
+            data-calories="${ingredient.calories ?? ""}"
+            data-nutrition-score="${ingredient.nutrition_score ?? ""}"
+          >
+            Edit Ingredient
+          </button>
+        </td>
+      </tr>
+    `;
+  }
 
-      tableBody.appendChild(row);
+  if (tableBody) {
+    tableBody.addEventListener("click", async (event) => {
+      const button = event.target.closest(".edit-ingredient-btn");
+      if (!button) return;
+
+      const ingredientId = button.dataset.ingredientId;
+
+      const newName = prompt("Edit name:", button.dataset.name);
+      if (newName === null) return;
+
+      const newCategory = prompt("Edit category:", button.dataset.category);
+      if (newCategory === null) return;
+
+      const newProtein = prompt("Edit protein:", button.dataset.protein);
+      if (newProtein === null) return;
+
+      const newCalories = prompt("Edit calories:", button.dataset.calories);
+      if (newCalories === null) return;
+
+      const newNutritionScore = prompt("Edit nutrition score:", button.dataset.nutritionScore);
+      if (newNutritionScore === null) return;
+
+      try {
+        await ingredientAPI.update(ingredientId, {
+          name: newName,
+          category: newCategory,
+          protein: parseFloat(newProtein),
+          calories: parseInt(newCalories, 10),
+          nutrition_score: parseFloat(newNutritionScore)
+        });
+
+        await loadIngredientsTable();
+        alert("Ingredient updated successfully.");
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Could not update ingredient.");
+      }
     });
-
-    if (emptyState) {
-      emptyState.style.display = ingredients.length > 0 ? "none" : "flex";
-    }
   }
 });

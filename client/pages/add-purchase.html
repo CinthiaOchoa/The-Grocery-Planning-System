@@ -131,7 +131,7 @@
           <a class="nav-link active" href="stores-list.html"><span class="nav-badge">🛒</span> Stores</a>
           <a class="nav-link" href="profile.html"><span class="nav-badge">👤</span> Profile</a>
           <a class="nav-link" href="settings.html"><span class="nav-badge">⚙️</span> Settings</a>
-          <a class="nav-link" href="login.html"><span class="nav-badge">↩</span> Sign Out</a>
+          <a class="nav-link" href="#" onclick="logout()"><span class="nav-badge">↩</span> Sign Out</a>
         </nav>
       </div>
     </aside>
@@ -144,10 +144,10 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
             <small>Logged in as</small>
-            <strong>Student User</strong>
+            <strong id="topbar-name">Student User</strong>
           </div>
         </div>
       </header>
@@ -170,7 +170,7 @@
 
           <div class="form-group">
             <label for="student_id">Student ID</label>
-            <input id="student_id" name="student_id" class="form-control" type="text" placeholder="Enter student id" />
+            <input id="student_id" name="student_id" class="form-control" type="text" readonly />
           </div>
 
           <div class="form-group">
@@ -208,107 +208,93 @@
   </div>
 
   <script>
-    const PURCHASES_STORAGE_KEY = "purchased_ingredients";
+    const savedTheme = localStorage.getItem("themePreference") || "light";
+    document.body.dataset.theme = savedTheme;
+  </script>
 
-    const form = document.getElementById("purchaseForm");
-    const storeIdInput = document.getElementById("store_id");
-    const ingredientIdInput = document.getElementById("ingredient_id");
-    const studentIdInput = document.getElementById("student_id");
-    const dateInput = document.getElementById("date");
-    const priceInput = document.getElementById("price");
-    const quantityInput = document.getElementById("quantity");
-    const unitInput = document.getElementById("unit");
-    const messageBox = document.getElementById("purchaseMessage");
-    const goBackBtn = document.getElementById("goBackBtn");
-    const subtitle = document.getElementById("purchasePageSubtitle");
+<script type="module">
+  import { purchaseAPI } from "../js/api.js";
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  import { logout } from "../js/auth.js";
 
-    const params = new URLSearchParams(window.location.search);
-    const selectedStoreId = params.get("store_id") || "";
+  window.logout = logout;
 
-    if (selectedStoreId) {
-      storeIdInput.value = selectedStoreId;
-      storeIdInput.readOnly = true;
-      subtitle.textContent = `Add a new purchase for Store ID: ${selectedStoreId}`;
+  requireAuth();
+  loadCurrentStudentUI();
+
+  const form = document.getElementById("purchaseForm");
+  const storeIdInput = document.getElementById("store_id");
+  const ingredientIdInput = document.getElementById("ingredient_id");
+  const studentIdInput = document.getElementById("student_id");
+  const dateInput = document.getElementById("date");
+  const priceInput = document.getElementById("price");
+  const quantityInput = document.getElementById("quantity");
+  const unitInput = document.getElementById("unit");
+  const messageBox = document.getElementById("purchaseMessage");
+  const goBackBtn = document.getElementById("goBackBtn");
+  const subtitle = document.getElementById("purchasePageSubtitle");
+
+  const params = new URLSearchParams(window.location.search);
+  const selectedStoreId = params.get("store_id") || "";
+
+  const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
+  const currentStudentId = currentStudent?.student_id || "";
+
+  if (selectedStoreId) {
+    storeIdInput.value = selectedStoreId;
+    storeIdInput.readOnly = true;
+    subtitle.textContent = `Add a new purchase for Store ID: ${selectedStoreId}`;
+  }
+
+  studentIdInput.value = currentStudentId;
+  studentIdInput.readOnly = true;
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const purchaseData = {
+      store_id: storeIdInput.value.trim(),
+      ingredient_id: ingredientIdInput.value.trim(),
+      student_id: studentIdInput.value.trim(),
+      date: dateInput.value,
+      price: priceInput.value,
+      quantity: quantityInput.value,
+      unit: unitInput.value.trim()
+    };
+
+    if (
+      !purchaseData.store_id ||
+      !purchaseData.ingredient_id ||
+      !purchaseData.student_id ||
+      !purchaseData.date ||
+      !purchaseData.price ||
+      !purchaseData.quantity ||
+      !purchaseData.unit
+    ) {
+      messageBox.textContent = "Please complete all fields before saving.";
+      return;
     }
 
-    function getSavedPurchases() {
-      const raw = localStorage.getItem(PURCHASES_STORAGE_KEY);
-      if (!raw) return [];
-      try {
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        return [];
-      }
-    }
-
-    function savePurchases(purchases) {
-      localStorage.setItem(PURCHASES_STORAGE_KEY, JSON.stringify(purchases));
-    }
-
-    function clearFormKeepStore() {
-      form.reset();
-      messageBox.textContent = "";
-      if (selectedStoreId) {
-        storeIdInput.value = selectedStoreId;
-        storeIdInput.readOnly = true;
-      }
-    }
-
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      const purchaseData = {
-        store_id: storeIdInput.value.trim(),
-        ingredient_id: ingredientIdInput.value.trim(),
-        student_id: studentIdInput.value.trim(),
-        date: dateInput.value,
-        price: priceInput.value,
-        quantity: quantityInput.value,
-        unit: unitInput.value.trim()
-      };
-
-      if (
-        !purchaseData.store_id ||
-        !purchaseData.ingredient_id ||
-        !purchaseData.student_id ||
-        !purchaseData.date ||
-        !purchaseData.price ||
-        !purchaseData.quantity ||
-        !purchaseData.unit
-      ) {
-        messageBox.textContent = "Please complete all fields before saving.";
-        return;
-      }
-
-      const savedPurchases = getSavedPurchases();
-      savedPurchases.push(purchaseData);
-      savePurchases(savedPurchases);
-
+    try {
+      await purchaseAPI.createPurchase(purchaseData);
       messageBox.textContent = "Purchase saved successfully.";
 
       setTimeout(() => {
         window.location.href = `store-purchases.html?store_id=${encodeURIComponent(purchaseData.store_id)}`;
       }, 500);
-    });
+    } catch (error) {
+      console.error(error);
+      messageBox.textContent = error.message || "Could not save purchase.";
+    }
+  });
 
-    form.addEventListener("reset", function () {
-      setTimeout(() => {
-        clearFormKeepStore();
-      }, 0);
-    });
-
-    goBackBtn.addEventListener("click", function () {
-      if (selectedStoreId) {
-        window.location.href = `store-purchases.html?store_id=${encodeURIComponent(selectedStoreId)}`;
-      } else {
-        window.location.href = "store-purchases.html";
-      }
-    });
-  </script>
-  <script>
-    const savedTheme = localStorage.getItem("themePreference") || "light";
-    document.body.dataset.theme = savedTheme;
-  </script>
+  goBackBtn.addEventListener("click", function () {
+    if (selectedStoreId) {
+      window.location.href = `store-purchases.html?store_id=${encodeURIComponent(selectedStoreId)}`;
+    } else {
+      window.location.href = "store-purchases.html";
+    }
+  });
+</script>
 </body>
 </html>

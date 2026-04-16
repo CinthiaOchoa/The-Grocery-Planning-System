@@ -151,10 +151,10 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
             <small>Logged in as</small>
-            <strong>Student User</strong>
+            <strong id="topbar-name">Student User</strong>
           </div>
         </div>
       </header>
@@ -165,13 +165,12 @@
         </div>
       
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by pantry id, type, or location" />
-          <select class="filter-select">
-            <option>All Types</option>
-          </select>
-          <select class="filter-select">
-            <option>All Locations</option>
-          </select>
+          <input
+          id="pantry-search"
+          type="text"
+          placeholder="Search pantry..."
+          class="form-control"
+        />
           <a href="new-pantry.html" class="btn-primary">+ New Pantry</a>
         </div>
       
@@ -187,13 +186,6 @@
             </thead>
             <tbody id="pantryTableBody"></tbody>
           </table>
-      
-          <div class="pantry-empty-state">
-            <div>
-              <strong>No pantry data loaded yet.</strong><br />
-              This table is intentionally empty so it can later receive data from CSV files, Excel imports, backend routes, or MySQL queries.
-            </div>
-          </div>
         </div>
       </section>
     </main>
@@ -203,5 +195,11 @@
     document.body.dataset.theme = savedTheme;
   </script>
 <script type="module" src="../js/pantry.js"></script>
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
 </body>
 </html>

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tables.css">
 
+  
   <style>
     .page-grid {
       grid-template-columns: 1fr;
@@ -61,10 +62,10 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
             <small>Logged in as</small>
-            <strong>Student User</strong>
+            <strong id="topbar-name">Student User</strong>
           </div>
         </div>
       </header>
@@ -179,118 +180,111 @@
     </main>
   </div>
 
-  <script>
+  <script type="module">
+    import { pantryItemAPI, ingredientAPI } from "../js/api.js";
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  
     const params = new URLSearchParams(window.location.search);
     const pantryId = params.get("pantryId");
-
+  
     const pantryItemForm = document.getElementById("pantryItemForm");
     const goBackBtn = document.getElementById("goBackBtn");
     const ingredientSelect = document.getElementById("ingredient_select");
     const ingredientIdInput = document.getElementById("ingredient_id");
-
-    const ingredients = [
-      { ingredientId: "ING001", name: "Tomato" },
-      { ingredientId: "ING002", name: "Milk" },
-      { ingredientId: "ING003", name: "Rice" },
-      { ingredientId: "ING004", name: "Chicken" },
-      { ingredientId: "ING005", name: "Onion" },
-      { ingredientId: "ING006", name: "Potato" }
-    ];
-
+  
     if (goBackBtn) {
       goBackBtn.href = pantryId
         ? `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`
         : "pantry-list.html";
     }
-
-    function fillIngredientOptions() {
-      ingredients.forEach((ingredient) => {
-        const option = document.createElement("option");
-        option.value = ingredient.ingredientId;
-        option.textContent = `${ingredient.name} (${ingredient.ingredientId})`;
-        option.dataset.name = ingredient.name;
-        ingredientSelect.appendChild(option);
-      });
+  
+    async function fillIngredientOptions() {
+      try {
+        const ingredients = await ingredientAPI.getAll();
+  
+        ingredients.forEach((ingredient) => {
+          const ingredientId = ingredient.ingredientId ?? ingredient.ingredient_id ?? "";
+          const name = ingredient.name ?? "";
+  
+          const option = document.createElement("option");
+          option.value = ingredientId;
+          option.textContent = `${name} (${ingredientId})`;
+          ingredientSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Could not load ingredients:", error);
+      }
     }
-
+  
     function updateIngredientId() {
       ingredientIdInput.value = ingredientSelect.value || "";
     }
-
-    function getSavedPantryItems() {
-      return JSON.parse(localStorage.getItem("pantryItems")) || [];
-    }
-
-    function savePantryItems(items) {
-      localStorage.setItem("pantryItems", JSON.stringify(items));
-    }
-
+  
     fillIngredientOptions();
-
+  
     ingredientSelect.addEventListener("change", updateIngredientId);
-
+  
     pantryItemForm.addEventListener("reset", () => {
       setTimeout(() => {
         ingredientSelect.selectedIndex = 0;
         ingredientIdInput.value = "";
       }, 0);
     });
-
-    pantryItemForm.addEventListener("submit", function (e) {
+  
+    pantryItemForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      const pantryItemId = document.getElementById("pantry_item_id").value.trim();
-      const ingredientId = ingredientIdInput.value.trim();
+  
+      const pantry_item_id = document.getElementById("pantry_item_id").value.trim();
+      const ingredient_id = ingredientIdInput.value.trim();
       const unit = document.getElementById("unit").value.trim();
       const quantity = document.getElementById("quantity").value.trim();
-      const dateAdded = document.getElementById("date_added").value;
-      const expirationDate = document.getElementById("expiration_date").value;
-
+      const date_added = document.getElementById("date_added").value;
+      const expiration_date = document.getElementById("expiration_date").value;
+  
       if (!pantryId) {
         alert("No pantry was selected.");
         return;
       }
-
-      if (!pantryItemId || !ingredientId || !unit || !quantity || !dateAdded || !expirationDate) {
+  
+      if (!pantry_item_id || !ingredient_id || !unit || !quantity || !date_added || !expiration_date) {
         alert("Please fill in all fields.");
         return;
       }
-
-      const savedPantryItems = getSavedPantryItems();
-
-      const alreadyExists = savedPantryItems.some(
-        (item) => item.pantryItemId.toLowerCase() === pantryItemId.toLowerCase()
-      );
-
-      if (alreadyExists) {
-        alert("This Pantry Item ID already exists. Please use a different one.");
-        return;
+  
+      try {
+        await pantryItemAPI.create({
+          pantry_id: pantryId,
+          ingredient_id,
+          unit,
+          date_added,
+          expiration_date,
+          quantity: Number(quantity)
+        });
+  
+        window.location.href = `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`;
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Could not create pantry item.");
       }
-
-      const selectedIngredient = ingredients.find(
-        (ingredient) => ingredient.ingredientId === ingredientId
-      );
-
-      const newPantryItem = {
-        pantryItemId: pantryItemId,
-        pantryId: pantryId,
-        ingredientId: ingredientId,
-        ingredientName: selectedIngredient ? selectedIngredient.name : "",
-        unit: unit,
-        quantity: Number(quantity),
-        dateAdded: dateAdded,
-        expirationDate: expirationDate
-      };
-
-      savedPantryItems.push(newPantryItem);
-      savePantryItems(savedPantryItems);
-
-      window.location.href = `pantry-items.html?pantryId=${encodeURIComponent(pantryId)}`;
     });
   </script>
+
+
+
   <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
+
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
+
 </body>
 </html>

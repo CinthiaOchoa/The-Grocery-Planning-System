@@ -1,7 +1,7 @@
-// pantry-items.js
-
+import { pantryItemAPI } from "./api.js";
+import { loadCurrentStudentUI, requireAuth } from "./currentStudent.js";
 import { $, onDelegate } from "./utils.js";
-import { loadCurrentStudentUI } from "./currentStudent.js";
+
 const state = {
   pantryId: null,
   pantryItems: []
@@ -14,12 +14,13 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", initPantryItemsPage);
 
-function initPantryItemsPage() {
+async function initPantryItemsPage() {
+  requireAuth();
+  loadCurrentStudentUI();
   cacheElements();
   bindEvents();
   readPantryIdFromUrl();
-  loadPantryItems();
-  renderPantryItemsTable();
+  await loadPantryItems();
 }
 
 function cacheElements() {
@@ -28,7 +29,9 @@ function cacheElements() {
 }
 
 function bindEvents() {
-  onDelegate(elements.tableBody, "click", '[data-action="delete"]', handleDeletePantryItem);
+  if (elements.tableBody) {
+    onDelegate(elements.tableBody, "click", '[data-action="delete"]', handleDeletePantryItem);
+  }
 }
 
 function readPantryIdFromUrl() {
@@ -40,42 +43,18 @@ function readPantryIdFromUrl() {
   }
 }
 
-function loadPantryItems() {
-  const defaultPantryItems = [
-    {
-      pantryItemId: "PI001",
-      pantryId: "P001",
-      ingredientId: "ING001",
-      unit: "kg",
-      dateAdded: "2026-04-05",
-      expirationDate: "2026-04-10",
-      quantity: 2
-    },
-    {
-      pantryItemId: "PI002",
-      pantryId: "P001",
-      ingredientId: "ING003",
-      unit: "pcs",
-      dateAdded: "2026-04-03",
-      expirationDate: "2026-04-12",
-      quantity: 6
-    },
-    {
-      pantryItemId: "PI003",
-      pantryId: "P002",
-      ingredientId: "ING002",
-      unit: "liters",
-      dateAdded: "2026-04-01",
-      expirationDate: "2026-04-20",
-      quantity: 1
-    }
-  ];
+async function loadPantryItems() {
+  if (!state.pantryId || !elements.tableBody) return;
 
-  const savedPantryItems = JSON.parse(localStorage.getItem("pantryItems")) || [];
-
-  state.pantryItems = [...defaultPantryItems, ...savedPantryItems].filter(
-    (item) => item.pantryId === state.pantryId
-  );
+  try {
+    const items = await pantryItemAPI.getByPantryId(state.pantryId);
+    state.pantryItems = Array.isArray(items) ? items : [];
+    renderPantryItemsTable();
+  } catch (error) {
+    console.error("Failed to load pantry items:", error);
+    state.pantryItems = [];
+    renderPantryItemsTable();
+  }
 }
 
 function renderPantryItemsTable() {
@@ -93,30 +72,26 @@ function renderPantryItemsTable() {
   }
 
   state.pantryItems.forEach((item) => {
+    const pantryId = item.pantryId ?? item.pantry_id ?? "";
+    const ingredientId = item.ingredientId ?? item.ingredient_id ?? "";
+    const unit = item.unit ?? "";
+    const quantity = item.quantity ?? "";
+    const dateAdded = item.dateAdded ?? item.date_added ?? "";
+    const expirationDate = item.expirationDate ?? item.expiration_date ?? "";
+
     const row = document.createElement("tr");
 
     row.innerHTML = `
-      <td>${item.pantryItemId}</td>
-      <td>${item.ingredientId}</td>
-      <td>${item.unit}</td>
-      <td>${item.quantity}</td>
-      <td>${item.dateAdded}</td>
-      <td>${item.expirationDate}</td>
+      <td>${pantryId}-${ingredientId}</td>
+      <td>${ingredientId}</td>
+      <td>${unit}</td>
+      <td>${quantity}</td>
+      <td>${dateAdded}</td>
+      <td>${expirationDate}</td>
       <td>
         <div class="action-group">
-          <a
-            href="pantry-edit-item.html?pantryItemId=${encodeURIComponent(item.pantryItemId)}&pantryId=${encodeURIComponent(item.pantryId)}&ingredientId=${encodeURIComponent(item.ingredientId)}&unit=${encodeURIComponent(item.unit)}&quantity=${encodeURIComponent(item.quantity)}&dateAdded=${encodeURIComponent(item.dateAdded)}&expirationDate=${encodeURIComponent(item.expirationDate)}"
-            class="btn-secondary">
-            Edit
-          </a>
-
-          <button
-            type="button"
-            class="btn btn-delete"
-            data-action="delete"
-            data-pantry-item-id="${item.pantryItemId}">
-            Delete
-          </button>
+          <span class="btn-secondary" style="opacity:0.7;">Edit later</span>
+          <span class="btn-secondary" style="opacity:0.7;">Delete later</span>
         </div>
       </td>
     `;
@@ -125,18 +100,6 @@ function renderPantryItemsTable() {
   });
 }
 
-function handleDeletePantryItem(event, button) {
-  const pantryItemId = button.dataset.pantryItemId;
-
-  state.pantryItems = state.pantryItems.filter(
-    (item) => item.pantryItemId !== pantryItemId
-  );
-
-  const savedPantryItems = JSON.parse(localStorage.getItem("pantryItems")) || [];
-  const updatedSavedPantryItems = savedPantryItems.filter(
-    (item) => item.pantryItemId !== pantryItemId
-  );
-  localStorage.setItem("pantryItems", JSON.stringify(updatedSavedPantryItems));
-
-  renderPantryItemsTable();
+function handleDeletePantryItem() {
+  alert("Delete pantry item comes next. First we are finishing list + create with MySQL.");
 }

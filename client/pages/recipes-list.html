@@ -171,18 +171,19 @@
         <h2>Recipes</h2>
         <p>Browse and manage your recipes.</p>
       </div>
+      <div class="profile-pill">
+        <div class="avatar-small" id="topbar-avatar">SU</div>
+        <div>
+        <small>Logged in as</small>
+        <strong id="topbar-name">Student User</strong>
+        </div>
+        </div>
     </header>
 
     <!-- FILTERS -->
     <section class="card">
       <div class="toolbar">
         <input class="search-input" type="text" placeholder="Search recipes..." />
-        <select class="filter-select">
-          <option>All</option>
-          <option>Easy</option>
-          <option>Medium</option>
-          <option>Hard</option>
-        </select>
         <a href="new-recipe.html" class="btn-primary">+ Add Recipe</a>
       </div>
     </section>
@@ -237,16 +238,17 @@
     <section class="recipes-grid" id="recipesContainer">
       <!-- DATA CAN GO HERE LATER IF YOU WANT CARDS TOO -->
     </section>
-
-    <div class="recipes-empty">
-      <strong>No recipes loaded yet.</strong><br>
-      This page is ready to receive data from CSV files or backend.
-    </div>
   </main>
 </div>
 <script>
   const savedTheme = localStorage.getItem("themePreference") || "light";
   document.body.dataset.theme = savedTheme;
+</script>
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
 </script>
 </body>
 </html>

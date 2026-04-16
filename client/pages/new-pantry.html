@@ -63,6 +63,13 @@
           <h2>Create New Pantry</h2>
           <p>Define a pantry location (e.g., fridge, shelf, cabinet).</p>
         </div>
+        <div class="profile-pill">
+          <div class="avatar-small" id="topbar-avatar">SU</div>
+          <div>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
+          </div>
+          </div>
       </header>
 
       <section class="card form-container">
@@ -98,40 +105,15 @@
     </main>
   </div>
   <script>
-    const pantryForm = document.getElementById("pantryForm");
-  
-    if (pantryForm) {
-      pantryForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-  
-        const pantryId = document.getElementById("pantry_id").value.trim();
-        const type = document.getElementById("type").value.trim();
-        const location = document.getElementById("location").value.trim();
-  
-        if (!pantryId || !type || !location) {
-          alert("Please fill in Pantry ID, Type, and Location.");
-          return;
-        }
-  
-        const newPantry = {
-          pantryId: pantryId,
-          type: type,
-          location: location
-        };
-  
-        const savedPantries = JSON.parse(localStorage.getItem("pantries")) || [];
-        savedPantries.push(newPantry);
-        localStorage.setItem("pantries", JSON.stringify(savedPantries));
-  
-        window.location.href = "pantry-list.html";
-      });
-    }
-  </script>
-  <script>
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
   <script type="module" src="../js/new-pantry.js"></script>
-
+  <script type="module">
+    import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+  
+    requireAuth();
+    loadCurrentStudentUI();
+  </script>
 </body>
 </html>

@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tables.css">
-  <script src="../js/ingredients.js"></script>
+  <script type="module" src="../js/ingredients.js" defer></script>
 
   <style>
     /* Ingredients-dataset-only styles */
@@ -63,19 +63,36 @@
       }
 
       .table-link {
-  color: var(--teal);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.table-link:hover {
-  text-decoration: underline;
-}
-
-.highlight-row {
-  background: rgba(22, 94, 110, 0.08);
-}
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
     }
+
+    .table-link:hover {
+      text-decoration: underline;
+    }
+
+    .highlight-row {
+      background: rgba(22, 94, 110, 0.08);
+    }
+    }
+
+    .btn-link-action {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid #d9e2e8;
+    background: #fff;
+    color: #1f3b4d;
+    cursor: pointer;
+  }
+
+  .btn-link-action:hover {
+    opacity: 0.92;
+  }
   </style>
 </head>
 <body>
@@ -111,12 +128,12 @@
         </div>
 
         <div class="profile-pill">
-          <div class="avatar">SU</div>
+          <div class="avatar-small" id="topbar-avatar">SU</div>
           <div>
-            <small>Logged in as</small>
-            <strong>Student User</strong>
+          <small>Logged in as</small>
+          <strong id="topbar-name">Student User</strong>
           </div>
-        </div>
+          </div>
       </header>
 
      
@@ -127,13 +144,12 @@
         </div>
 
         <div class="toolbar">
-          <input class="search-input" type="text" placeholder="Search by ingredient name, id, or category" />
-          <select class="filter-select">
-            <option>All Categories</option>
-          </select>
-          <select class="filter-select">
-            <option>All Nutrition Scores</option>
-          </select>
+          <input
+            id="ingredient-search"
+            class="search-input"
+            type="text"
+            placeholder="Search by ingredient name, id, or category"
+          />
           <a href="new-ingredient.html" class="btn-primary">+ New Ingredient</a>
         </div>
 
@@ -147,6 +163,7 @@
                 <th>Protein</th>
                 <th>Calories</th>
                 <th>Nutrition Score</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="ingredientsTableBody">
@@ -170,5 +187,13 @@
     const savedTheme = localStorage.getItem("themePreference") || "light";
     document.body.dataset.theme = savedTheme;
   </script>
+
+<script type="module">
+  import { loadCurrentStudentUI, requireAuth } from "../js/currentStudent.js";
+
+  requireAuth();
+  loadCurrentStudentUI();
+</script>
+
 </body>
 </html>
