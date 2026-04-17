@@ -352,13 +352,22 @@ function renderAdvancedMeals(recipes) {
     return;
   }
 
-  elements.advancedList.innerHTML = recipes.map(r => `
+  elements.advancedList.innerHTML = recipes.map((r) => `
     <div class="meal-item">
       <div class="meal-info">
         <h4>${r.name}</h4>
         <p>
           Time: ${r.total_time_prep} min •
           Pantry Match: ${r.matched_ingredients}/${r.total_ingredients}
+        </p>
+        <p>
+          Total Recipe Cost: $${Number(r.estimated_total_recipe_cost || 0).toFixed(2)} •
+          Pantry Value Used: $${Number(r.pantry_value_used || 0).toFixed(2)} •
+          Missing to Buy: $${Number(r.cost_to_buy_missing || 0).toFixed(2)}
+        </p>
+        <p>
+          <strong>Need to buy:</strong>
+          ${r.missing_ingredients ? r.missing_ingredients : "Nothing missing"}
         </p>
       </div>
       <strong>$${Number(r.cost_to_buy_missing || 0).toFixed(2)}</strong>

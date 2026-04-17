@@ -11,7 +11,7 @@ async function handleResponse(response) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || "Request failed");
+    throw new Error(data.error || data.message || `HTTP ${response.status}`);
   }
 
   return data;

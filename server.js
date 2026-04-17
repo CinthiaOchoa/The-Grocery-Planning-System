@@ -315,7 +315,58 @@ app.put("/api/purchases/:purchaseId", async (req, res) => {
 // ======================
 // INGREDIENT ROUTES
 // ======================
+// CREATE ingredient
+app.post("/api/ingredients", async (req, res) => {
+  const {
+    ingredient_id,
+    name,
+    category,
+    protein,
+    calories,
+    nutrition_score,
+    image_url,
+    price
+  } = req.body;
 
+  try {
+    const [existing] = await pool.query(
+      "SELECT * FROM ingredients WHERE ingredient_id = ?",
+      [ingredient_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        error: "Ingredient ID already exists"
+      });
+    }
+
+    await pool.query(
+      `INSERT INTO ingredients
+       (ingredient_id, name, category, protein, calories, nutrition_score, image_url, price)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        ingredient_id,
+        name,
+        category,
+        protein,
+        calories,
+        nutrition_score,
+        image_url ?? null,
+        price ?? null
+      ]
+    );
+
+    const [rows] = await pool.query(
+      "SELECT * FROM ingredients WHERE ingredient_id = ?",
+      [ingredient_id]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Create ingredient error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 // GET all ingredients
 app.get("/api/ingredients", async (req, res) => {
   try {
@@ -864,53 +915,127 @@ app.get("/api/advanced-meals", async (req, res) => {
         r.recipe_id,
         r.name,
         r.total_time_prep,
-
         COUNT(ri.ingredient_id) AS total_ingredients,
 
         SUM(
           CASE
-            WHEN pi.ingredient_id IS NOT NULL THEN 1
+            WHEN pantry_match.ingredient_id IS NOT NULL THEN 1
             ELSE 0
           END
         ) AS matched_ingredients,
 
-        COALESCE(
-          SUM(
-            CASE 
-              WHEN pi.ingredient_id IS NULL THEN COALESCE((
-                SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * ri.amount
-                FROM purchased_ingredient pi2
-                WHERE pi2.ingredient_id = ri.ingredient_id
-                ORDER BY pi2.date DESC, pi2.purchase_id DESC
-                LIMIT 1
-              ), 0)
-              ELSE 0 
-            END
-          ),
-          0
-        ) AS cost_to_buy_missing
+        COALESCE(SUM(
+          COALESCE(
+            (
+              SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * COALESCE(ri.amount, 1)
+              FROM purchased_ingredient pi2
+              WHERE pi2.ingredient_id = ri.ingredient_id
+                AND pi2.student_id = ?
+              ORDER BY pi2.date DESC, pi2.purchase_id DESC
+              LIMIT 1
+            ),
+            i.price * COALESCE(ri.amount, 1),
+            0
+          )
+        ), 0) AS estimated_total_recipe_cost,
+
+        COALESCE(SUM(
+          CASE
+            WHEN pantry_match.ingredient_id IS NOT NULL THEN
+              COALESCE(
+                (
+                  SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * COALESCE(ri.amount, 1)
+                  FROM purchased_ingredient pi2
+                  WHERE pi2.ingredient_id = ri.ingredient_id
+                    AND pi2.student_id = ?
+                  ORDER BY pi2.date DESC, pi2.purchase_id DESC
+                  LIMIT 1
+                ),
+                i.price * COALESCE(ri.amount, 1),
+                0
+              )
+            ELSE 0
+          END
+        ), 0) AS pantry_value_used,
+
+        COALESCE(SUM(
+          CASE
+            WHEN pantry_match.ingredient_id IS NULL THEN
+              COALESCE(
+                (
+                  SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * COALESCE(ri.amount, 1)
+                  FROM purchased_ingredient pi2
+                  WHERE pi2.ingredient_id = ri.ingredient_id
+                    AND pi2.student_id = ?
+                  ORDER BY pi2.date DESC, pi2.purchase_id DESC
+                  LIMIT 1
+                ),
+                i.price * COALESCE(ri.amount, 1),
+                0
+              )
+            ELSE 0
+          END
+        ), 0) AS cost_to_buy_missing,
+
+        GROUP_CONCAT(
+          CASE
+            WHEN pantry_match.ingredient_id IS NULL THEN
+              CONCAT(
+                i.name,
+                ' ($',
+                ROUND(
+                  COALESCE(
+                    (
+                      SELECT (pi2.price / NULLIF(pi2.quantity, 0)) * COALESCE(ri.amount, 1)
+                      FROM purchased_ingredient pi2
+                      WHERE pi2.ingredient_id = ri.ingredient_id
+                        AND pi2.student_id = ?
+                      ORDER BY pi2.date DESC, pi2.purchase_id DESC
+                      LIMIT 1
+                    ),
+                    i.price * COALESCE(ri.amount, 1),
+                    0
+                  ),
+                2),
+                ')'
+              )
+            ELSE NULL
+          END
+          SEPARATOR ', '
+        ) AS missing_ingredients
 
       FROM recipe r
       JOIN recipe_ingredients ri
         ON r.recipe_id = ri.recipe_id
+      JOIN ingredients i
+        ON i.ingredient_id = ri.ingredient_id
 
-      LEFT JOIN pantry_item pi
-        ON ri.ingredient_id = pi.ingredient_id
-       AND pi.pantry_id IN (
+      LEFT JOIN (
+        SELECT DISTINCT pi.ingredient_id
+        FROM pantry_item pi
+        WHERE pi.pantry_id IN (
           SELECT pantry_id
           FROM student_pantry
           WHERE student_id = ?
-       )
+        )
+      ) pantry_match
+        ON pantry_match.ingredient_id = ri.ingredient_id
 
       GROUP BY r.recipe_id, r.name, r.total_time_prep
-
       HAVING r.total_time_prep <= ?
          AND cost_to_buy_missing <= ?
-
       ORDER BY matched_ingredients DESC,
                cost_to_buy_missing ASC,
                r.total_time_prep ASC
-    `, [student_id, max_time, max_budget]);
+    `, [
+      student_id,
+      student_id,
+      student_id,
+      student_id,
+      student_id,
+      max_time,
+      max_budget
+    ]);
 
     res.json(rows);
   } catch (error) {

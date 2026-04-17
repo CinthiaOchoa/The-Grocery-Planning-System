@@ -33,18 +33,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await ingredientAPI.create({
-          ingredient_id: ingredientId,
+          ingredient_id: Number(ingredientId),
           name,
           category,
-          protein: parseFloat(protein),
-          calories: parseInt(calories, 10),
-          nutrition_score: parseFloat(nutritionScore)
+          protein: Number(protein) || 0,
+          calories: Number(calories) || 0,
+          nutrition_score: Number(nutritionScore) || 0,
+          image_url: null,
+          price: null
         });
 
         alert("Ingredient saved successfully.");
         window.location.href = "ingredients-dataset.html";
       } catch (error) {
-        console.error(error);
+        console.error("Create ingredient error:", error);
         alert(error.message || "Could not save ingredient.");
       }
     });
@@ -81,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tableBody) return;
 
     const searchValue = searchInput?.value?.trim().toLowerCase() || "";
-
     let filteredIngredients = [...allIngredients];
 
     if (searchValue) {
@@ -100,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (emptyState) emptyState.style.display = "none";
-
     tableBody.innerHTML = filteredIngredients.map(createIngredientRow).join("");
   }
 
@@ -189,17 +189,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await ingredientAPI.update(ingredientId, {
-          name: newName,
-          category: newCategory,
-          protein: parseFloat(newProtein),
-          calories: parseInt(newCalories, 10),
-          nutrition_score: parseFloat(newNutritionScore)
+          name: newName.trim(),
+          category: newCategory.trim(),
+          protein: Number(newProtein) || 0,
+          calories: Number(newCalories) || 0,
+          nutrition_score: Number(newNutritionScore) || 0
         });
 
         await loadIngredientsTable();
         alert("Ingredient updated successfully.");
       } catch (error) {
-        console.error(error);
+        console.error("Update ingredient error:", error);
         alert(error.message || "Could not update ingredient.");
       }
     });
