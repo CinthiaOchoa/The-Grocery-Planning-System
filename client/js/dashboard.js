@@ -208,7 +208,7 @@ function renderRecentPurchases() {
   elements.recentPurchasesList.innerHTML = studentPurchases.map((p) => `
     <div class="activity-item">
       <div class="activity-info">
-        <h4>Ingredient ID: ${p.ingredient_id}</h4>
+        <h4>${p.ingredient_name || `Ingredient ID: ${p.ingredient_id}`}</h4>
         <p>${p.quantity} ${p.unit} • ${p.date}</p>
       </div>
       <strong>$${Number(p.price).toFixed(2)}</strong>
@@ -266,7 +266,7 @@ function renderPantryAlerts() {
     return `
       <div class="activity-item">
         <div class="activity-info">
-          <h4>Ingredient ID: ${item.ingredient_id}</h4>
+          <h4>${item.ingredient_name || `Ingredient ID: ${item.ingredient_id}`}</h4>
           <p>${status} • ${rawDate}</p>
         </div>
         <strong>${item.quantity} ${item.unit}</strong>

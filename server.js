@@ -485,6 +485,7 @@ app.get("/api/pantry-items/student/:studentId", async (req, res) => {
          pi.pantry_item_id,
          pi.pantry_id,
          pi.ingredient_id,
+         i.name AS ingredient_name,
          pi.unit,
          pi.date_added,
          pi.expiration_date,
@@ -492,6 +493,8 @@ app.get("/api/pantry-items/student/:studentId", async (req, res) => {
        FROM pantry_item pi
        JOIN student_pantry sp
          ON pi.pantry_id = sp.pantry_id
+       JOIN ingredients i
+         ON pi.ingredient_id = i.ingredient_id
        WHERE sp.student_id = ?
        ORDER BY pi.expiration_date ASC, pi.pantry_item_id ASC`,
       [studentId]
@@ -1073,9 +1076,13 @@ app.get("/api/pantries/student/:studentId", async (req, res) => {
 app.get("/api/purchases", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT *
-       FROM purchased_ingredient
-       ORDER BY date DESC, purchase_id DESC`
+      `SELECT 
+         p.*,
+         i.name AS ingredient_name
+       FROM purchased_ingredient p
+       JOIN ingredients i
+         ON p.ingredient_id = i.ingredient_id
+       ORDER BY p.date DESC, p.purchase_id DESC`
     );
 
     res.json(rows);
@@ -1095,6 +1102,7 @@ app.get("/api/pantry-items/student/:studentId", async (req, res) => {
          pi.pantry_item_id,
          pi.pantry_id,
          pi.ingredient_id,
+         i.name AS ingredient_name,
          pi.unit,
          pi.date_added,
          pi.expiration_date,
@@ -1102,6 +1110,8 @@ app.get("/api/pantry-items/student/:studentId", async (req, res) => {
        FROM pantry_item pi
        JOIN student_pantry sp
          ON pi.pantry_id = sp.pantry_id
+       JOIN ingredients i
+         ON pi.ingredient_id = i.ingredient_id
        WHERE sp.student_id = ?
        ORDER BY pi.expiration_date ASC, pi.pantry_item_id ASC`,
       [studentId]
