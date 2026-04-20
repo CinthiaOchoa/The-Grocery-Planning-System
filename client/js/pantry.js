@@ -53,6 +53,7 @@ function handleSearch(e) {
   renderPantryTable();
 }
 
+
 async function loadPantries() {
   try {
     const currentStudent = JSON.parse(localStorage.getItem("currentStudent"));
